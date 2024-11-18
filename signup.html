@@ -30,30 +30,36 @@
                     </div>
                 </div>
             </div>
-            <div class="contentDiv d-flex justify-content-center align-items-center">
-                <div class="loginContentDiv d-flex ">
-                    <div class="loginLeftDiv d-flex align-items-center justify-content-between">
-                        <img src="https://toddbrentlinger.github.io/odin-project/intermediate-html-and-css/grid/project-admin-dashboard/favicon/android-chrome-192x192.png"
-                        alt="Project Admin Dashboard icon" width="100px" height="100px">
-                    </div>
-                    <div class="loginRight d-flex flex-column align-items-center">
-                        <span class="loginHead">SIGN UP</span>
-                        <div class="formDiv d-flex flex-column">
-                            <input type="text" class="inputFieldSignup" id="inputField" placeholder="Fullname">
-                            <input type="text" class="inputFieldSignup" id="inputField" placeholder="Email ID">
-                            <input type="text" class="inputFieldSignup" id="inputField" placeholder="Username">
-                            <input type="text" class="inputFieldSignup" id="inputField" placeholder="Password">
-                            <input type="text" class="inputFieldSignup" id="inputField" placeholder="Confirm Password">
-                            <div class="buttonDiv mx-auto">
-                                <button type="submit" class="loginButton" id="loginBtuuon">Register</button>
-                            </div>    
+            <form action="" method="post"  enctype="multipart/form-data">
+                <div class="contentDiv d-flex justify-content-center align-items-center">
+                    <div class="loginContentDiv d-flex ">
+                        <div class="loginLeftDiv d-flex align-items-center justify-content-between">
+                            <img src="https://toddbrentlinger.github.io/odin-project/intermediate-html-and-css/grid/project-admin-dashboard/favicon/android-chrome-192x192.png"
+                            alt="Project Admin Dashboard icon" width="100px" height="100px">
                         </div>
-                        <span class="loginCreate mt-3">Alerady have account? 
-                            <a href="login.cfm" class="text-decoration-none">Login</a>
-                        </span>
+                        <div class="loginRight d-flex flex-column align-items-center">
+                            <span class="loginHead">SIGN UP</span>
+                            <div class="formDiv d-flex flex-column">
+                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Fullname">
+                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Email ID">
+                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Username">
+                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Password">
+                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Confirm Password">
+                                <div class="buttonWrap">
+                                    <label class ="newButton" for="upload">Image
+                                    <input id="uploadProfile" type="file" class="signUpImage">
+                                </div>
+                                <div class="buttonDiv mx-auto">
+                                    <button type="submit" class="loginButton" id="loginBtuuon">Register</button>
+                                </div>    
+                            </div>
+                            <span class="loginCreate mt-3">Alerady have account? 
+                                <a href="login.cfm" class="text-decoration-none">Login</a>
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </body>
 </html>
