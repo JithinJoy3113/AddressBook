@@ -2,6 +2,9 @@
     margin: 0;
     padding: 0;
 }
+body{
+    background-color: #d6e6f3;
+}
 .headerDiv,.loginLeftDiv{
     background-color: #387cb4;
 }
@@ -44,6 +47,7 @@
 }
 .loginRight{
     padding: 20px 30px;
+    background-color: white;
 }
 .loginHead{
     font-size: 24px;
@@ -63,11 +67,159 @@
     font-size: 14px;
     margin-top: 40px;
 }
-.loginSignup{
+.loginSignup,.inputProfile{
     font-size: 14px;
     color: grey;
 }
 .loginCreate{
     font-size: 15px;
     color: rgb(80, 78, 78);
+}
+.buttonWrap {
+    margin: 20px 0px 0px 27px;
+}
+.userContentDiv{
+    position: relative;
+    background-color: #d6e6f3;
+    padding: 0px 110px;
+}
+.fileHeader{
+    margin-top: 30px;
+    width: 100%;
+    padding: 16px 55px;
+    background-color: white;
+}
+.userProfileDiv{
+    background-color: white;
+    max-height: 240px;
+    padding: 15px 20px;
+}
+.userContactsDiv{
+    background-color: white;
+    padding: 10px 5px;
+
+}
+.createContactButton{
+    border: none;
+    background-color: #387cb4;
+    padding: 3px 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    border-radius: 20px;
+}
+.profileName{
+    font-size: 15px;
+    color: #387cb4;
+    font-weight: 700;
+}
+.contactTableHead{
+    padding: 15px 87px;
+    color: #387cb4;
+    font-size: 14px;
+    font-weight: 700;
+}
+.nameHead,.nameSpan{
+    width: 86px;
+}
+.emailHead,.emailSpan{
+    width: 195px;
+}
+.phoneHead,.phoneSpan{
+    width: 120px;
+}
+.editButton{
+   border: 1px solid #4188c2;;
+   width: 95px;
+   font-size: 13px;
+   color: #387cb4;
+   border-radius: 20px;
+   border-width: thin;
+   font-weight: 600;
+   padding: 2px 0px 2px 0px;
+}
+.detailsFont,.contactName{
+    font-size: 15px;
+}
+.editButtonDiv{
+    padding-left: 32px ;
+    padding-right: 32px;
+}
+.showContactDiv{
+    display: none;
+    top: 3px;
+    position: absolute;
+    margin-top: 10px;
+    background-color: #d6e6f3;
+    padding: 0px 10px;
+    box-shadow: 5px 5px 5px 5px rgb(197, 196, 196);
+}
+.showContactDetails{
+    background-color: white;
+    padding: 60px 45px;
+}
+.showContactHead{
+    background-color: #d6e6f3;
+    color: #296ba0;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 5px 90px;
+}
+.contactNameDiv{
+    padding-bottom: 10px;
+}
+.contactLabel,.contactSymbol{
+    color: #387cb4;
+    font-size: 15px;
+    font-weight: 700;
+}
+.contactLabel{
+    width: 100px;
+}
+.contactName{
+    inline-size: 230px;
+    overflow-wrap: break-word;
+}
+.crateDetailButton{
+    border: none;
+    border-radius: 20px;
+    background-color: #387cb4;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    padding: 3px 40px;
+}
+.disabled{
+    pointer-events: none;
+    opacity: 0.5;
+}
+.inputBorder{
+    border: none;
+    border-bottom: 1px solid rgb(192, 190, 190);
+}
+.personalDetails{
+    color: #387cb4;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 2px solid #16588d;;
+}
+.nameLabel{
+    font-size: 14px;
+    color:  #387cb4;
+    font-weight: 700;
+}
+.firstNameInput{
+    max-width: 90px;
+}
+.lastNameInput{
+    width: 130px;
+}
+.inputBorder::placeholder{
+    font-size: 14px;
+}
+input:focus,select:focus{
+    outline: none;
+}
+.addressDiv{
+    width: 150px;
 }
