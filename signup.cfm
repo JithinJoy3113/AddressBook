@@ -18,14 +18,8 @@
                 <div class="headerButtonsDiv d-flex">
                     <div class="signInDiv d-flex">
                         <a href="signUp.cfm" class="text-decoration-none text-white">
-                            <img src="assets/images/signin.PNG" alt="" width="14px" height="14px">
-                            <span class="signInKink text-white">Sign Up</span>
-                        </a>
-                    </div>
-                    <div class="signInDiv d-flex">
-                        <a href="signUp.cfm" class="text-decoration-none text-white">
                             <img src="assets/images/login.png" alt="" width="14px" height="14px">
-                            <span class="signInKink text-white">Login</span>
+                            <a href="index.cfm" class="signInKink text-white text-decoration-none ms-1">Login</a>
                         </a>
                     </div>
                 </div>
@@ -40,26 +34,41 @@
                         <div class="loginRight d-flex flex-column align-items-center">
                             <span class="loginHead">SIGN UP</span>
                             <div class="formDiv d-flex flex-column">
-                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Fullname">
-                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Email ID">
-                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Username">
-                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Password">
-                                <input type="text" class="inputFieldSignup" id="inputField" placeholder="Confirm Password">
+                                <input type="text" class="inputFieldSignup" name="fullNameInput" id="fullNameInput" placeholder="Fullname">
+                                <span class="errorMessage" id="nameError"></span>
+                                <input type="text" class="inputFieldSignup" name="emailInput" id="emailInput" placeholder="Email ID">
+                                <span class="errorMessage" id="emailError"></span>
+                                <input type="text" class="inputFieldSignup" name="userNameInput" id="userNameInput" placeholder="Username">
+                                <span class="errorMessage" id="userNameError"></span>
+                                <input type="text" class="inputFieldSignup" name="passwordInput" id="passwordInput" placeholder="Password">
+                                <span class="errorMessage" id="passwordError"></span>
+                                <input type="text" class="inputFieldSignup" id="confirmInput" placeholder="Confirm Password">
+                                <span class="errorMessage" id="confirmError"></span>
                                 <div class="buttonWrap">
-                                    <label class ="newButton" for="upload">Image
-                                    <input id="uploadProfile" type="file" class="signUpImage">
+                                    <label class ="newButton ms-1" for="upload">Upload Image:<br>
+                                    <input id="uploadProfile" name="uploadProfile" type="file" class="signUpImage mt-2">
                                 </div>
                                 <div class="buttonDiv mx-auto">
-                                    <button type="submit" class="loginButton" id="loginBtuuon">Register</button>
+                                    <button type="submit" class="loginButton" id="loginBtuuon" name="userSignUp" onclick="return signUpValidate()">Register</button>
                                 </div>    
                             </div>
                             <span class="loginCreate mt-3">Alerady have account? 
-                                <a href="login.cfm" class="text-decoration-none">Login</a>
+                                <a href="index.cfm" class="text-decoration-none">Login</a>
                             </span>
                         </div>
                     </div>
                 </div>
             </form>
+            <cfif structKeyExists(form, "userSignUp")>
+                <cfset local.obj = new components.component()>
+                <cfset local.result = local.obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
+                <cfif local.result>
+                    <span class="text-success fw-bold mx-auto">User Registration Success</span>
+                <cfelse>
+                    <span class="text-danger fw-bold mx-auto">Email Already exist</span>
+                </cfif>
+            </cfif>
         </div>
+        <script src="js/script.js"></script>
     </body>
 </html>
