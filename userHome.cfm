@@ -46,7 +46,7 @@
                             <div class="userDetailsDiv d-flex mt-3 w-100">
                                 <div class="userProfileDiv d-flex flex-column align-items-center">
                                     <div class="userProfile">
-                                        <img src="assets/uploadImages/#session.userDetails.image#" alt="" width="100px" height="100px">
+                                        <img src="assets/uploadImages/#session.userDetails.image#" alt="" width="100px" height="100px" class="rounded-circle">
                                     </div>
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
@@ -58,25 +58,29 @@
                                         <span class="phoneHead">PHONE NUMBER</span>
                                     </div>
                                     <div class="ContactsDetailsDiv d-flex flex-column">
-                                        <div class="detailsRow d-flex align-items-center  py-3">
-                                            <div class="detailsDiv d-flex align-items-center">
-                                                <img src="assets/images/defaultProfile.jpg" alt="" width="70px" height="70px">
-                                                <div class="nameSpan detailsFont ms-3">Jithin</div>
-                                                <div class="emailSpan detailsFont">jithinj3113@gmail.com</div>
-                                                <div class="phoneSpan detailsFont">1234567898</div>
+                                        <cfset local.obj = new Components.component()>
+                                        <cfset local.result = local.obj.contactListView()>
+                                        <cfloop query="#local.result#">
+                                            <div class="detailsRow d-flex align-items-center  py-3">
+                                                <div class="detailsDiv d-flex align-items-center">
+                                                    <img src="assets/uploadImages/#Profile#" alt="" width="70px" height="70px" class="rounded-circle">
+                                                    <div class="nameSpan detailsFont ms-3">#FirstName# #LastName#</div>
+                                                    <div class="emailSpan detailsFont">#Email#</div>
+                                                    <div class="phoneSpan detailsFont">#Mobile#</div>
+                                                </div>
+                                                <div class="detailsButtonDiv d-flex">
+                                                    <div class="editButtonDiv">
+                                                        <button class="editButton" type="button" onclick="editContact(this)" value="#ID#">EDIT</button>
+                                                    </div>
+                                                    <div class="editButtonDiv">
+                                                        <button class="editButton" type="button" onclick="deleteButton(this)" value="#ID#">DELETE</button>
+                                                    </div>
+                                                    <div class="editButtonDiv">
+                                                        <button class="editButton" type="button" onclick="viewContact(this)" value="#ID#">VIEW</button>
+                                                    </div>
+                                                </div><br>
                                             </div>
-                                            <div class="detailsButtonDiv d-flex">
-                                                <div class="editButtonDiv">
-                                                    <button class="editButton" type="button" onclick="editContact()">EDIT</button>
-                                                </div>
-                                                <div class="editButtonDiv">
-                                                    <button class="editButton" type="button" onclick="deleteButton()">DELETE</button>
-                                                </div>
-                                                <div class="editButtonDiv">
-                                                    <button class="editButton" type="button" onclick="viewContact()">VIEW</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        </cfloop> 
                                     </div>
                                 </div>
                             </div>
@@ -86,7 +90,7 @@
                         <div class="showContactDiv" id="createEditDiv">
                             <div class="showContactDetails d-flex flex-column">
                                 <div class="showContactHead" id="showContactHead"></div>
-                                <div class="showContactInfoDiv d-flex flex-column mt-4 pt-1 pe-4">
+                                <div class="showContactInfoDiv d-flex flex-column mt-4 pt-1 pe-4" id="showContactInfoDiv">
                                     <span class="personalDetails" id="personalDetails">Personal Details</span>
                                     <div class="nameInputDiv d-flex mt-3">
                                         <div class="inputDiv d-flex flex-column">
@@ -99,17 +103,17 @@
                                         </div>
                                         <div class="inputDiv d-flex flex-column ms-4 ps-1">
                                             <label for="name" class="nameLabel" id="firstNameLabel">First Name *</label>
-                                            <input type="text" class="firstNameInput inputBorder mt-3" id="firstNameInput" placeholder="Your First Name">
+                                            <input type="text" class="firstNameInput inputBorder mt-3" name="firstNameInput" id="firstNameInput" placeholder="Your First Name">
                                         </div>
                                         <div class="inputDiv d-flex flex-column ms-4 ps-1">
                                             <label for="name" class="nameLabel" id="lastNameLabel">Last Name *</label>
-                                            <input type="text" class="lastNameInput inputBorder mt-3" id="lastNameInput" placeholder="Your Last Name">
+                                            <input type="text" class="lastNameInput inputBorder mt-3" id="lastNameInput" name="lastNameInput" placeholder="Your Last Name">
                                         </div>
                                     </div>
                                     <div class="genderMainDiv d-flex mt-3 justify-content-between">
                                         <div class="genderDiv d-flex flex-column">
                                             <label for="name" class="nameLabel" id="genderLabel">Gender *</label>
-                                            <select name="gender" id="genderSelect" class="genderSelect inputBorder mt-3">
+                                            <select id="genderSelect" name="genderSelect" class="genderSelect inputBorder mt-3">
                                                 <option value=""></option>
                                                 <option value="Male" id="gender">Male</option>
                                                 <option value="Female" id="gender">Female</option>
@@ -117,43 +121,43 @@
                                         </div>
                                         <div class="dobDiv d-flex flex-column">
                                             <label for="name" class="nameLabel" id="dobLabel">Date of Birth *</label>
-                                            <input type="date" class="inputBorder dateInput mt-3" id="dateInput">
+                                            <input type="date" class="inputBorder dateInput mt-3" id="dateInputField" name="dateInput">
                                         </div>
                                     </div>
                                     <div class="createUpload d-flex flex-column mt-3">
                                         <label for="name" class="nameLabel">Upload Photo</label>
-                                        <input id="uploadProfile" type="file" class="signUpImage mt-2">
+                                        <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
                                     </div>
                                     <span class="errorMessage" id="createErrorMessage"></span>
                                     <span class="personalDetails mt-4">Contact Details</span>
                                     <div class="addressMainDiv d-flex justify-content-between">
                                         <div class="addressDiv d-flex flex-column">
                                             <label for="address" class="nameLabel mt-3" id="addressLabel">Address *</label>
-                                            <input type="text" class="inputBorder mt-3" id="addressInput" placeholder="Your Address">
+                                            <input type="text" class="inputBorder mt-3" id="addressInput" name="addressInput" placeholder="Your Address">
                                         </div>
                                         <div class="addressDiv d-flex flex-column">
                                             <label for="street" class="nameLabel mt-3" id="streetLabel">Street *</label>
-                                            <input type="text" class="inputBorder mt-3" id="streetInput" placeholder="Your Street Name">
+                                            <input type="text" class="inputBorder mt-3" id="streetInput" name="streetInput" placeholder="Your Street Name">
                                         </div>
                                     </div>
                                     <div class="locationDiv d-flex justify-content-between">
                                         <div class="districtDiv addressDiv">
                                             <label for="district" class="nameLabel mt-3" id="districtLabel">District *</label>
-                                            <input type="text" id="districtSelect" class="addressDiv inputBorder">
+                                            <input type="text" id="districtSelect" class="addressDiv inputBorder" name="districtInput">
                                         </div>
                                         <div class="stateDiv addressDiv">
                                             <label for="state" class="nameLabel mt-3" id="stateLabel">State *</label>
-                                            <input type="text" id="stateSelect" class="inputBorder addressDiv">
+                                            <input type="text" id="stateSelect" class="inputBorder addressDiv" name="stateInput">
                                         </div>
                                     </div>
                                     <div class="pincodeMainDiv d-flex justify-content-between">
                                         <div class="countryDiv addressDiv">
                                             <label for="country" class="nameLabel mt-3" id="countryLabel">Country *</label>
-                                            <input type="text" id="countrySelect" class="addressDiv inputBorder">
+                                            <input type="text" id="countrySelect" class="addressDiv inputBorder" name="countryInput">
                                         </div>
                                         <div class="pincodeDiv addressDiv">
                                             <label for="pincode" class="nameLabel mt-3" id="pincodeLabel">Pincode *</label>
-                                            <input type="text" id="pincode" class="inputBorder addressDiv" placeholder="Your Pincode">
+                                            <input type="text" id="pincode" class="inputBorder addressDiv" placeholder="Your Pincode" name="pincode">
                                         </div>
                                     </div>
                                     <div class="emailMainDiv d-flex justify-content-between">
@@ -163,14 +167,14 @@
                                         </div>
                                         <div class="mobileDiv addressDiv">
                                             <label for="mobile" class="nameLabel mt-3" id="mobileLabel">Mobile *</label>
-                                            <input type="text" id="mobile" class="inputBorder addressDiv" placeholder="Your Number">
+                                            <input type="text" id="mobile" name="mobile" class="inputBorder addressDiv" placeholder="Your Number">
                                         </div>
                                     </div>
                                 </div>
                                 <span class="errorMessage" id="createErrorMessageTwo"></span>
                                 <div class="crateDetailButtonDiv d-flex justify-content-center py-3">
-                                    <button type="button" class="createDetailButton" id="createDetailButton" onclick="return createContactSumbit()">Create</button>
-                                    <button type="button" class="editDetailButton" id="editDetailButton" onclick="editContactSumbit()">Update</button>
+                                    <button type="submit" class="createDetailButton" id="createDetailButton" name="createDetailButton" onclick="return createContactSumbit()">Create</button>
+                                    <button type="submit" class="editDetailButton" id="editDetailButton" name="editDetailButton" onclick="return editContactSumbit()">Update</button>
                                 </div>
                             </div>
                             <div class="showContactImage d-flex flex-column">
@@ -178,7 +182,7 @@
                                     <button type="button" class="createClose border-0" onclick="createClose()"><img width="35" height="35" src="https://img.icons8.com/sf-regular/48/387cb4/close-window.png" alt="close-window"/></button>
                                 </div>
                                 <div class="createProfileImage px-4 py-3">
-                                    <img src="assets/images/defaultProfile.jpg" alt="" width="110px" height="110px" class="mt-5 mx-2">
+                                    <img src="assets/images/defaultProfile.jpg" alt="" width="110px" height="110px" class="mt-5 mx-2" id="editImage">
                                 </div>
                             </div>
                         </div> 
@@ -193,42 +197,48 @@
                                 </div>
                                 <div class="showContactInfoDiv d-flex flex-column mt-4 pt-1">
                                     <div class="contactNameDiv d-flex">
-                                        <div class="contactLabel text-capitalize">name</div>
+                                        <div class="contactLabel">Name</div>
                                         <div class="contactSymbol">:</div>
-                                        <div class="contactName ms-4">Jithin Joy</div>
+                                        <div class="contactName ms-4" id="contactName"></div>
                                     </div>
                                     <div class="contactNameDiv d-flex">
-                                        <div class="contactLabel text-capitalize">name</div>
+                                        <div class="contactLabel text-capitalize">Gender</div>
                                         <div class="contactSymbol">:</div>
-                                        <div class="contactName ms-4">Jithin Joy</div>
+                                        <div class="contactName ms-4" id="contactGender"></div>
                                     </div>
                                     <div class="contactNameDiv d-flex">
-                                        <div class="contactLabel text-capitalize">name</div>
+                                        <div class="contactLabel text-capitalize">Date of Birth</div>
                                         <div class="contactSymbol">:</div>
-                                        <div class="contactName ms-4">Jithin Joy</div>
+                                        <div class="contactName ms-4" id="contactDob"></div>
                                     </div>
                                     <div class="contactNameDiv d-flex">
-                                        <div class="contactLabel text-capitalize">name</div>
+                                        <div class="contactLabel text-capitalize">Address</div>
                                         <div class="contactSymbol">:</div>
-                                        <div class="contactName ms-4">Jithin Joy</div>
+                                        <div class="contactName ms-4" id="contactAddress"></div>
                                     </div>
                                     <div class="contactNameDiv d-flex">
-                                        <div class="contactLabel text-capitalize">name</div>
+                                        <div class="contactLabel text-capitalize">Pincode</div>
                                         <div class="contactSymbol">:</div>
-                                        <div class="contactName ms-4">esssssssssssssgtrgsbdvsertgbhsdfhbsdrtsegbdfxbvxbsd</div>
+                                        <div class="contactName ms-4" id="contactPincode"></div>
                                     </div>
                                     <div class="contactNameDiv d-flex">
-                                        <div class="contactLabel text-capitalize">name</div>
+                                        <div class="contactLabel text-capitalize">Email ID</div>
                                         <div class="contactSymbol">:</div>
-                                        <div class="contactName ms-4">Jithin Joy</div>
+                                        <div class="contactName ms-4" id="contactEmail"></div>
                                     </div>
+                                    <div class="contactNameDiv d-flex">
+                                        <div class="contactLabel text-capitalize">Mobile</div>
+                                        <div class="contactSymbol">:</div>
+                                        <div class="contactName ms-4" id="contactMobile"></div>
+                                    </div>
+                                    
                                 </div>
                                 <div class="crateDetailButtonDiv d-flex justify-content-center py-3">
                                     <button type="button" class="createDetailButton" id="crateDetailButton" onclick="viewContactClose()">CLOSE</button>
                                 </div>
                             </div>
                             <div class="showContactImage d-flex px-4 py-5">
-                                <img src="assets/images/defaultProfile.jpg" alt="" width="110px" height="110px" class="mt-5">
+                                <img src="" alt="" width="110px" height="110px" class="mt-5"  id="contactImage">
                             </div>
                         </div> 
 
@@ -256,6 +266,14 @@
                     </div>
                 </div>
             </form>
+            <cfif structKeyExists(form, "createDetailButton")>
+                <cfset local.obj = new Components.component()>
+                <cfset local.result = local.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,
+                                                form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                <cfif local.result>
+                    <cflocation  url="userHome.cfm" addToken="no">
+                </cfif>
+            </cfif>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
             <script src="js/script.js"></script>
         </cfoutput>

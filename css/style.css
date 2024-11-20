@@ -2,6 +2,10 @@
     margin: 0;
     padding: 0;
 }
+::-webkit-scrollbar {
+    width: 0;  
+    background: transparent;
+}
 body{
     background-color: #bacedf;
 }
@@ -277,4 +281,8 @@ input:focus,select:focus{
     font-size: 12px;
     font-weight: 700;
     color: red;
+}
+.viewImage{
+    width: 35px;
+    height:35px;
 }

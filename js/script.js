@@ -1,6 +1,33 @@
-function viewContact(){
-    $("#showContactDiv").css({"display":"flex"});  
-    $('#bodyContents').addClass('disabled');
+function viewContact(ID){
+    let id=ID.value;
+    if(id){
+        $.ajax({
+            url:'./Components/component.cfc?method=viewContact',
+            type: "post",
+            data:{
+                id:id
+            },
+            success: function (response) {   
+                let data=JSON.parse(response);
+                let dateNew=new Date(data.DOB);
+                formatDate=dateNew.getDate()+"/"+dateNew.getMonth()+"/"+dateNew.getFullYear();
+                $("#showContactDiv").css({"display":"flex"});  
+                $('#bodyContents').addClass('disabled');
+                $("#contactName").text(data.FIRSTNAME+ data.LASTNAME);
+                $("#contactGender").text(data.GENDER);
+                $("#contactDob").text(formatDate);
+                $("#contactAddress").text(`${data.ADDRESS}, ${data.STREET}, ${data.DISTRICT}, ${data.STATE}, ${data.COUNTRY}`);
+                $("#contactPincode").text(data.PINCODE);
+                $("#contactEmail").text(data.EMAIL);
+                $("#contactMobile").text(data.MOBILE);
+                let imagePath=`assets/uploadImages/${data.PROFILE}`
+                $("#contactImage").attr("src", imagePath);
+            }
+         });
+    }
+    else{
+        valid=false;
+    }
 }
 
 function viewContactClose(){
@@ -11,9 +38,14 @@ function viewContactClose(){
 function createClose(){
     $('#bodyContents').removeClass('disabled');
     $("#createEditDiv").css({"display":"none"});
+    $('#showContactInfoDiv').find('label').css({'color':"#387cb4"});
+    $('#createErrorMessage').text('');
+    $('#createErrorMessageTwo').text('');
 }
 
 function createContact(){
+    $('#showContactInfoDiv').find('input,select').val('');
+    $("#editImage").attr("src", "assets/uploadImages/defaultProfile.jpg");
     $("#createEditDiv").css({"display":"flex"});  
     $('#bodyContents').addClass('disabled');
     $("#showContactHead").text("CREATE CONTACT");
@@ -22,14 +54,14 @@ function createContact(){
 }
 
 function validate(){
-
+    
     let valid=true; 
 
     let title=document.getElementById('titleSelect').value;
     let firstName=document.getElementById('firstNameInput').value;
     let lastName=document.getElementById('lastNameInput').value;
     let gender=document.getElementById('genderSelect').value;
-    let dob=document.getElementById('dateInput').value;
+    let dob=document.getElementById('dateInputField').value;
     let address=document.getElementById('addressInput').value;
     let street=document.getElementById('streetInput').value;
     let district=document.getElementById('districtSelect').value;
@@ -142,7 +174,10 @@ function validate(){
     else{
         document.getElementById('mobileLabel').style.color="#387cb4";
     }
-    return valid;
+    if (valid){
+        return valid
+    }
+
 }
 
 function createContactSumbit(){
@@ -153,69 +188,139 @@ function createContactSumbit(){
         $('#bodyContents').removeClass('disabled');
     }
     else{
-        document.getElementById('createErrorMessage').textContent="Please enter valid datas for required(*) fields";
-        document.getElementById('createErrorMessageTwo').textContent="Please enter valid datas for required(*) fields";
+        $('#createErrorMessage').text("Please enter valid datas for required(*) fields");
+        $('#createErrorMessageTwo').text("Please enter valid datas for required(*) fields");
+        valid=false;
     }
     return valid;
 }
 
-function editContact(){
-    $("#createEditDiv").css({"display":"flex"}); 
-    $("#editDetailButton").css({"display":"flex"});
-    $("#createDetailButton").css({"display":"none"});
-    $('#bodyContents').addClass('disabled');
-    $("#showContactHead").text("EDIT CONTACT");
-}
-
+let editId;
+function editContact(ID){
+    let editId=ID.value;
+ 
+        $.ajax({
+            url:'./Components/component.cfc?method=viewContact',
+            type: "post",
+            data:{
+                id:editId
+            },
+            success: function (response) {   
+                console.log(response)
+                let data=JSON.parse(response);
+                $("#createEditDiv").css({"display":"flex"}); 
+                $("#editDetailButton").css({"display":"flex"});
+                $("#createDetailButton").css({"display":"none"});
+                $('#bodyContents').addClass('disabled');
+                $("#showContactHead").text("EDIT CONTACT");
+                let dateNew=new Date(data.DOB);
+                formatDate=dateNew.getFullYear()+"-"+dateNew.getMonth()+"-"+dateNew.getDate();
+                $("#titleSelect").val(data.TITLE);
+                $("#firstNameInput").val(data.FIRSTNAME);
+                $("#lastNameInput").val(data.LASTNAME);
+                $("#genderSelect").val(data.GENDER);
+                $("#dateInputField").val(formatDate);
+                $("#addressInput").val(data.ADDRESS);
+                $("#streetInput").val(data.STREET);
+                $("#districtSelect").val(data.DISTRICT);
+                $("#stateSelect").val(data.STATE);
+                $("#countrySelect").val(data.COUNTRY);
+                $("#pincode").val(data.PINCODE);
+                $("#emailInput").val(data.EMAIL);
+                $("#mobile").val(data.MOBILE);
+                let imagePath=`assets/uploadImages/${data.PROFILE}`
+                $("#editImage").attr("src", imagePath);
+            }
+            });
+    }
+ 
 function editContactSumbit(){
     let valid=validate();
     if(valid){
-        $("#editDetailButton").css({"display":"none"});
-        $("#createEditDiv").css({"display":"none"});  
-        $('#bodyContents').removeClass('disabled');
+        let title=$("#titleSelect").val();
+        let fName=$("#firstNameInput").val();
+        let lName=$("#lastNameInput").val();
+        let gender=$("#genderSelect").val();
+        let dob=$("#dateInputField").val();
+        let address=$("#addressInput").val();
+        let street=$("#streetInput").val();
+        let district=$("#districtSelect").val();
+        let state=$("#stateSelect").val();
+        let country=$("#countrySelect").val();
+        let pincode=$("#pincode").val();
+        let email=$("#emailInput").val();
+        let mobile=$("#mobile").val();
+        let img=$("#editImage").val();
+        
+        $.ajax({
+            url:'./Components/component.cfc?method=createContact',
+            type: "post",
+            data:{
+                id:editId,
+                title:title,
+                firstName:fName,
+                lastName:lName,
+                gender:gender,
+                date:dob,
+                profile:img,
+                address:address,
+                street:street,
+                district:district,
+                state:state,
+                country:country,
+                pincode:pincode,
+                email:email,
+                mobile:mobile,
+                valid:"edit"
+            },
+            success: function (response) {   
+                console.log(response)
+                $("#editDetailButton").css({"display":"none"});
+                $("#createEditDiv").css({"display":"none"});  
+                $('#bodyContents').removeClass('disabled');
+                 }
+            });
     }
     else{
-        document.getElementById('createErrorMessage').textContent="Please enter valid datas for required(*) fields";
-        document.getElementById('createErrorMessageTwo').textContent="Please enter valid datas for required(*) fields";
+        $('#createErrorMessage').text("Please enter valid datas for required(*) fields");
+        $('#createErrorMessageTwo').text("Please enter valid datas for required(*) fields");
+        valid=false;
     }
     return valid;
 }
 
 var deleteId;
-function deleteButton(){
+function deleteButton(ID){
+    deleteId=ID.value;
     $("#deleteConfirm").css({"display":"flex"});
     $('#displayContent').addClass('disabled');
 }
 
-// function deleteAlert(confirm){
+function deleteAlert(confirm){
     
-//     let valid=true;
-//     if(confirm=="yes"){
-//         $.ajax({
-//             url:'./components/component.cfc?method=deleteRow',
-//             type: "post",
-//             data:{
-//                 id:deleteId
-//             },
-//             success: function (response) {
-//                 if(response){
-//                     let alertDiv=document.getElementById("deleteConfirm").style.display="none";
-//                     document.getElementById("displayContent").classList.remove("disabled");
-//                 }
-//                 else{
-//                     valid=false
-//                     document.getElementById("displayContent").classList.remove("disabled");
-//                 }
-//             }
-//          });
-//     }
-//     else{
-//         valid=false;
-//         document.getElementById("deleteConfirm").style.display="none";
-//         document.getElementById("displayContent").classList.remove("disabled");
-//     }
-//     return valid;
-// }
+    let valid=true;
+    if(confirm=="yes"){
+        $.ajax({
+            url:'./Components/component.cfc?method=deleteRow',
+            type: "post",
+            data:{
+                id:deleteId
+            },
+            success: function (response) {
+                if(response){
+                    $("#deleteConfirm").css({"display":"none"});
+                    $('#displayContent').removeClass('disabled');
+                }
+            }
+         });
+    }
+    else{
+        valid=false;
+        $("#deleteConfirm").css({"display":"none"});
+        $('#displayContent').removeClass('disabled');
+    }
+    return valid;
+}
 
 function logoutValidate(){
     $("#logoutConfirm").css({"display":"flex"});
@@ -234,7 +339,6 @@ function logoutAlert(value){
                 if(response){
                     $("#logoutConfirm").css({"display":"none"});
                     $("#bodyContents").removeClass("disabled");
-                    // window.location.assign("./index.cfm")
                 }
                 else{
                     valid=false
