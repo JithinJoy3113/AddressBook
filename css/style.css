@@ -2,14 +2,26 @@
     margin: 0;
     padding: 0;
 }
+::-webkit-scrollbar {
+    width: 0;  
+    background: transparent;
+}
 body{
-    background-color: #d6e6f3;
+    background-color: #bacedf;
 }
 .headerDiv,.loginLeftDiv{
     background-color: #387cb4;
 }
 .headerDiv{
     padding: 10px 50px;
+}
+.signUpImage::file-selector-button {
+    background-color: #387cb4;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 .signInDiv{
     padding: 0px 15px;
@@ -30,6 +42,10 @@ body{
     margin-top: 50px;
     padding: 5px 30px;
     font-size: 14px;
+}
+.newButton{
+    font-size: 14px;
+    color: grey;
 }
 .inputField:focus{
     outline: none;
@@ -80,7 +96,7 @@ body{
 }
 .userContentDiv{
     position: relative;
-    background-color: #d6e6f3;
+    background-color: #bacedf;
     padding: 0px 110px;
 }
 .fileHeader{
@@ -150,7 +166,7 @@ body{
     top: 3px;
     position: absolute;
     margin-top: 10px;
-    background-color: #d6e6f3;
+    background-color: #bacedf;
     padding: 0px 10px;
     box-shadow: 5px 5px 5px 5px rgb(197, 196, 196);
 }
@@ -159,11 +175,15 @@ body{
     padding: 60px 45px;
 }
 .showContactHead{
-    background-color: #d6e6f3;
+    background-color: #bacedf;
     color: #296ba0;
     font-size: 20px;
     font-weight: 700;
     padding: 5px 90px;
+}
+.createClose{
+    background-color: #bacedf;
+
 }
 .contactNameDiv{
     padding-bottom: 10px;
@@ -180,7 +200,7 @@ body{
     inline-size: 230px;
     overflow-wrap: break-word;
 }
-.crateDetailButton{
+.createDetailButton,.editDetailButton{
     border: none;
     border-radius: 20px;
     background-color: #387cb4;
@@ -222,4 +242,47 @@ input:focus,select:focus{
 }
 .addressDiv{
     width: 150px;
+}
+.logoutButton{
+    background-color: #387cb4;
+}
+.logoutConfirm,.deleteConfirm{
+    flex-direction: column;
+    position: absolute;
+    top: 200px;
+    background-color: white;
+    box-shadow: 1px 1px 3px 3px rgb(231, 103, 103);
+    display:none;
+}
+.logourtAlertHead{
+    background-color: rgb(226, 62, 62);
+}
+.logoutMesage{
+    padding: 20px 40px;
+}
+.alertBtn{
+    border: none;
+    border-radius: 20px;
+    background-color:  rgb(226, 62, 62);
+    padding: 10px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+.alertCancelBtn{
+    border: none;
+    border-radius: 20px;
+    background-color:  rgb(238, 220, 220);
+    padding: 10px 10px;
+    font-size: 14px;
+    font-weight: bold; 
+}
+.errorMessage{
+    font-size: 12px;
+    font-weight: 700;
+    color: red;
+}
+.viewImage{
+    width: 35px;
+    height:35px;
 }
