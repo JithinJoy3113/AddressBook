@@ -197,7 +197,7 @@ function createContactSumbit(){
 
 let editId;
 function editContact(ID){
-    let editId=ID.value;
+    editId=ID.value;
  
         $.ajax({
             url:'./Components/component.cfc?method=viewContact',
@@ -214,7 +214,16 @@ function editContact(ID){
                 $('#bodyContents').addClass('disabled');
                 $("#showContactHead").text("EDIT CONTACT");
                 let dateNew=new Date(data.DOB);
-                formatDate=dateNew.getFullYear()+"-"+dateNew.getMonth()+"-"+dateNew.getDate();
+                let month=dateNew.getMonth()+1
+                let year=dateNew.getFullYear()
+                let day=dateNew.getDate()
+                if(month < 10){
+                    month='0'+month
+                }
+                if(day < 10){
+                    day ='0'+day
+                }
+                formatDate=year+"-"+month+"-"+day;
                 $("#titleSelect").val(data.TITLE);
                 $("#firstNameInput").val(data.FIRSTNAME);
                 $("#lastNameInput").val(data.LASTNAME);
@@ -237,50 +246,11 @@ function editContact(ID){
 function editContactSumbit(){
     let valid=validate();
     if(valid){
-        let title=$("#titleSelect").val();
-        let fName=$("#firstNameInput").val();
-        let lName=$("#lastNameInput").val();
-        let gender=$("#genderSelect").val();
-        let dob=$("#dateInputField").val();
-        let address=$("#addressInput").val();
-        let street=$("#streetInput").val();
-        let district=$("#districtSelect").val();
-        let state=$("#stateSelect").val();
-        let country=$("#countrySelect").val();
-        let pincode=$("#pincode").val();
-        let email=$("#emailInput").val();
-        let mobile=$("#mobile").val();
-        let img=$("#editImage").val();
-        
-        $.ajax({
-            url:'./Components/component.cfc?method=createContact',
-            type: "post",
-            data:{
-                id:editId,
-                title:title,
-                firstName:fName,
-                lastName:lName,
-                gender:gender,
-                date:dob,
-                profile:img,
-                address:address,
-                street:street,
-                district:district,
-                state:state,
-                country:country,
-                pincode:pincode,
-                email:email,
-                mobile:mobile,
-                valid:"edit"
-            },
-            success: function (response) {   
-                console.log(response)
-                $("#editDetailButton").css({"display":"none"});
-                $("#createEditDiv").css({"display":"none"});  
-                $('#bodyContents').removeClass('disabled');
-                 }
-            });
-    }
+        $("#editDetailButton").css({"display":"none"});
+                    $("#createEditDiv").css({"display":"none"});
+                    $('#bodyContents').removeClass('disabled');
+        return valid;
+            }
     else{
         $('#createErrorMessage').text("Please enter valid datas for required(*) fields");
         $('#createErrorMessageTwo').text("Please enter valid datas for required(*) fields");
@@ -288,6 +258,8 @@ function editContactSumbit(){
     }
     return valid;
 }
+
+
 
 var deleteId;
 function deleteButton(ID){
@@ -436,4 +408,14 @@ function loginValidation(){
         document.getElementById('passwordError').textContent="";
     } 
     return valid;
+}
+
+function printContacts(){
+   
+    var printContents = document.getElementById("userContactsDiv").innerHTML;
+    var originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    $(".editButton").css({"display":"none"})
+    window.print();
+    document.body.innerHTML = originalContents;
 }
