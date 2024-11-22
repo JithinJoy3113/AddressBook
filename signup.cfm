@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
+<!---     <cfdump  var="#application#"> --->
         <div class="bodyContent d-flex flex-column">
             <div class="headerDiv d-flex justify-content-between align-items-center">
                 <div class="logoDiv">
@@ -60,8 +61,7 @@
                 </div>
             </form>
             <cfif structKeyExists(form, "userSignUp")>
-                <cfset local.obj = new components.component()>
-                <cfset local.result = local.obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
+                <cfset local.result = application.obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
                 <cfif local.result>
                     <span class="text-success fw-bold mx-auto">User Registration Success</span>
                 <cfelse>
@@ -69,6 +69,7 @@
                 </cfif>
             </cfif>
         </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/script.js"></script>
     </body>
 </html>

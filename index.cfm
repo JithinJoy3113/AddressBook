@@ -39,7 +39,7 @@
                                 <input type="text" class="inputField" name="passwordInput" id="passwordInput" placeholder="Password">
                                 <span class="errorMessage" id="passwordError"></span>
                                 <div class="buttonDiv mx-auto">
-                                    <button type="submit" class="loginButton" name="loginButton" id="loginBtuuon" onclick="return loginValidation()">LOGIN</button>
+                                    <button type="submit" class="loginButton" name="loginButton" id="" onclick="return loginValidation()">LOGIN</button>
                                 </div>    
                                 <span class="loginSignup mx-auto mt-4">Or Sign In Using</span>
                             </div>
@@ -56,15 +56,14 @@
                                 </div>
                             </div>
                             <span class="loginCreate mt-3">Don't have an account? 
-                                <a href="signup.cfm" class="text-decoration-none">Register Here</a>
+                                <a href="signUp.cfm" class="text-decoration-none">Register Here</a>
                             </span>
                         </div>
                     </div>
                 </div>
             </form>
             <cfif structKeyExists(form, "loginButton")>
-                <cfset local.obj = new components.component()>
-                <cfset local.result = local.obj.userLogin(form.userNameInput,form.passwordInput)>
+                <cfset local.result = application.obj.userLogin(form.userNameInput,form.passwordInput)>
                 <cfif local.result>
                     <cflocation  url="userHome.cfm">
                 <cfelse>
@@ -72,6 +71,7 @@
                 </cfif>
             </cfif>
         </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/script.js"></script>
     </body>
 </html>
