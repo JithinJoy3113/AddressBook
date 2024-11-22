@@ -9,7 +9,8 @@
     </head>
     <body>
         <cfoutput>
-            <form action="" method="post" enctype="multipart/form-data">
+            <cfset local.pdf = application.obj.getPdf()>
+            <form action="" method="post" enctype="multipart/form-data" id="fromId">
                 <cfif structKeyExists(form,"alertBtn")>
                     <cflocation  url="index.cfm" addToken = "no">
                 </cfif>
@@ -30,17 +31,17 @@
                     </div>
                     <div class="userContentDiv d-flex align-items-center justify-content-center" id="contentDiv">
                         <div class="bodyContents w-100 " id="bodyContents">
-                            <div class="fileHeader d-flex justify-content-end">
-                                <div class="fileButtons">
-                                    <button type="submit" class="pdfButton border-0" id="pdfButton" name="pdfButton" onclick="pdfContacts()">
+                            <div class="fileHeader d-flex justify-content-between">
+                                <div class="fileButtons ms-auto">
+                                    <a href="assets/pdfs/addressBookcontacts.pdf" download = "ReportPDF" class="text-decoration-none" name="pdfButton">
                                         <img src="assets/images/pdf (1).png" class="fileImage mx-1" width="32px" height="32px">
-                                    </button>
-                                    <button type="submit" class="pdfButton border-0" id="excelButton" name="excelButton" onclick="excelContacts()">
+                                    </a>
+                                    <a href="assets/spreadSheets/addressBookcontacts.xlsx" class="text-decoration-none" download = "ReportSheet" name="excelButtonon" onclick="getExcel()">
                                         <img src="assets/images/excel.png"  class="fileImage mx-1" alt="" width="32px" height="32px">
-                                    </button>
-                                    <button type="button" class="pdfButton border-0" id="printerButton" onclick="printContacts()">
+                                    </a>
+                                    <a href="" onclick="printContacts()" class="text-decoration-none">
                                         <img src="assets/images/printer.png"  class="fileImage mx-1" alt="" width="32px" height="32px">
-                                    </button>                    
+                                    </a>                  
                                 </div>
                             </div>
                             <div class="userDetailsDiv d-flex mt-3 w-100">
@@ -51,42 +52,48 @@
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
                                 </div>
-                                <div class="userContactsDiv d-flex flex-column ms-3" id="userContactsDiv">
-                                    <div class="contactTableHead d-flex">
-                                        <span class="nameHead">NAME</span>
-                                        <span class="emailHead">EMAIL ID</span>
-                                        <span class="phoneHead">PHONE NUMBER</span>
+                                <cfset local.result = application.obj.contactListView()>
+                                <cfif local.result.len()>
+                                    <div class="userContactsDiv d-flex flex-column ms-3" id="userContactsDiv">
+                                        <div class="contactTableHead d-flex">
+                                            <span class="nameHead">NAME</span>
+                                            <span class="emailHead">EMAIL ID</span>
+                                            <span class="phoneHead">PHONE NUMBER</span>
+                                        </div>
+                                        <div class="ContactsDetailsDiv d-flex flex-column">
+                                                <cfloop query="#local.result#">
+                                                    <div class="detailsRow d-flex align-items-center  py-3">
+                                                        <div class="detailsDiv d-flex align-items-center">
+                                                            <img src="assets/uploadImages/#Profile#" alt="" width="70px" height="70px" class="rounded-circle">
+                                                            <div class="nameSpan detailsFont ms-3">#FirstName# #LastName#</div>
+                                                            <div class="emailSpan detailsFont">#Email#</div>
+                                                            <div class="phoneSpan detailsFont">#Mobile#</div>
+                                                        </div>
+                                                        <div class="detailsButtonDiv d-flex">
+                                                            <div class="editButtonDiv">
+                                                                <button class="editButton" type="button" onclick="editContact(this)" id="editButtonId" value="#ID#">EDIT</button>
+                                                            </div>
+                                                            <div class="editButtonDiv">
+                                                                <button class="editButton" type="button" onclick="deleteButton(this)" id="deleteButtonId" value="#ID#">DELETE</button>
+                                                            </div>
+                                                            <div class="editButtonDiv">
+                                                                <button class="editButton" type="button" onclick="viewContact(this)" id="viewButtonId" value="#ID#">VIEW</button>
+                                                            </div>
+                                                        </div><br>
+                                                    </div>
+                                                </cfloop> 
+                                        </div>
                                     </div>
-                                    <div class="ContactsDetailsDiv d-flex flex-column">
-                                        <cfset local.obj = new Components.component()>
-                                        <cfset local.result = local.obj.contactListView()>
-                                        <cfloop query="#local.result#">
-                                            <div class="detailsRow d-flex align-items-center  py-3">
-                                                <div class="detailsDiv d-flex align-items-center">
-                                                    <img src="assets/uploadImages/#Profile#" alt="" width="70px" height="70px" class="rounded-circle">
-                                                    <div class="nameSpan detailsFont ms-3">#FirstName# #LastName#</div>
-                                                    <div class="emailSpan detailsFont">#Email#</div>
-                                                    <div class="phoneSpan detailsFont">#Mobile#</div>
-                                                </div>
-                                                <div class="detailsButtonDiv d-flex">
-                                                    <div class="editButtonDiv">
-                                                        <button class="editButton" type="button" onclick="editContact(this)" id="editButtonId" value="#ID#">EDIT</button>
-                                                    </div>
-                                                    <div class="editButtonDiv">
-                                                        <button class="editButton" type="button" onclick="deleteButton(this)" id="deleteButtonId" value="#ID#">DELETE</button>
-                                                    </div>
-                                                    <div class="editButtonDiv">
-                                                        <button class="editButton" type="button" onclick="viewContact(this)" id="viewButtonId" value="#ID#">VIEW</button>
-                                                    </div>
-                                                </div><br>
-                                            </div>
-                                        </cfloop> 
+                                <cfelse>
+                                    <div class="userContactsErrorDiv ms-3 d-flex justify-content-center align-items-center ">
+                                        <span class="noRecords mx-auto my-5">No Contacts</span>
                                     </div>
-                                </div>
+                                </cfif>
                             </div>
                         </div>  
 
                         <!-- create / edit -->
+
                         <div class="showContactDiv" id="createEditDiv">
                             <div class="showContactDetails d-flex flex-column">
                                 <div class="showContactHead" id="showContactHead"></div>
@@ -186,7 +193,6 @@
                                 </div>
                             </div>
                         </div> 
-                    
 
                         <!-- view Contact details -->
 
@@ -267,54 +273,44 @@
                 </div>
             </form>
             <cfif structKeyExists(form, "createDetailButton")>
-                <cfset local.obj = new Components.component()>
-                <cfset local.result = local.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                <cfset local.result = application.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
                 <cfif local.result>
                     <cflocation  url="userHome.cfm" addToken="no">
                 </cfif>
             </cfif>
             <cfif structKeyExists(form, "editDetailButton")>
-                <cfset local.obj = new Components.component()>
-                <cfset local.result = local.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                <cfset local.result = application.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
                 <cfif local.result>
                     <cflocation  url="userHome.cfm" addToken="no">
                 </cfif>
             </cfif> 
-            <cfif structKeyExists(form, "excelButton")>
-                <cfset local.obj = new Components.component()>
-                <cfset local.result = local.obj.getExcel()>
-            </cfif>
-            <cfif structKeyExists(form, "pdfButton")>
-                <cfset local.obj = new Components.component()>
-                <cfset local.result = local.obj.getPdf()>
-                <cfif local.result.len()>
-                    <cfdocument format = "pdf" filename = "assets/pdfs/addressBookReport.pdf" overwrite = "true" bookmark="no">
-                        <table>
+            <cfif local.pdf.len()>
+                <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no">
+                    <table>
+                        <tr>
+                            <th>FirstName</th>
+                            <th>LastName</th>
+                            <th>Gender</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Address</th>
+                            <th>Pincode</th>
+                            <th>Image</th>
+                        </tr>
+                        <cfloop query="local.pdf">
                             <tr>
-                                <th>FirstName</th>
-                                <th>LastName</th>
-                                <th>Gender</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
-                                <th>Address</th>
-                                <th>Pincode</th>
-                                <th>Image</th>
+                                <td>#FirstName#</td>
+                                <td>#LastName#</td>
+                                <td>#Gender#</td>
+                                <td>#Email#</td>
+                                <td>#Mobile#</td>
+                                <td>#Address#, #Street#, #District#, #State#, #Country#</td>
+                                <td>#Pincode#</td>
+                                <td><img src="assets/uploadImages/#Profile#" width="60" height="60"></td>
                             </tr>
-                            <cfloop query="local.result">
-                                <tr>
-                                    <td>#FirstName#</td>
-                                    <td>#LastName#</td>
-                                    <td>#Gender#</td>
-                                    <td>#Email#</td>
-                                    <td>#Mobile#</td>
-                                    <td>#Address#, #Street#, #District#, #State#, #Country#</td>
-                                    <td>#Pincode#</td>
-                                    <td><img src="assets/uploadImages/#Profile#" width="60" height="60"></td>
-                                </tr>
-                            </cfloop>  
-                        </table>
-                    </cfdocument>
-                </cfif>
+                        </cfloop>  
+                    </table>
+                </cfdocument>
             </cfif>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
             <script src="js/script.js"></script>
