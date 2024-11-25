@@ -2,9 +2,8 @@
     <cfset this.name = 'app'>
     <cfset this.sessionManagement = true>
     <cfset this.datasource = "database-jithin">
-    <cffunction  name="OnApplicationStart">
-        <cfset application.obj= new Components.addressbook()> 
-    </cffunction>
+<!---     <cfset application.obj= new Components.addressbook()>  --->
+
     <cffunction  name="onRequest" returnType="void">
 
         <cfargument  name="requestPage" required="true"> 

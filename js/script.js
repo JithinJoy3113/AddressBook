@@ -411,18 +411,18 @@ function loginValidation(){
 }
 
 function printContacts(){
-   
-    var printContents = $("#userContactsDiv").innerHTML;
+ 
+    var printContents = document.getElementById("userContactsDiv").innerHTML;
     var originalContents = document.body.innerHTML;
     document.body.innerHTML = printContents;
     $(".editButton").css({"display":"none"})
     window.print();
     document.body.innerHTML = originalContents;
 }
+
 function getExcel(){
     $.ajax({
         url:'./Components/addressbook.cfc?method=getExcel',
         type: "post"
     })
-
 }
