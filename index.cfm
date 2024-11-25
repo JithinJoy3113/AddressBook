@@ -9,6 +9,7 @@
     </head>
     <body>
         <div class="bodyContent d-flex flex-column">
+            <cfset local.obj = new Components.addressbook()>
             <form method="post" action="">
                 <div class="headerDiv d-flex justify-content-between align-items-center">
                     <div class="logoDiv">
@@ -63,7 +64,7 @@
                 </div>
             </form>
             <cfif structKeyExists(form, "loginButton")>
-                <cfset local.result = application.obj.userLogin(form.userNameInput,form.passwordInput)>
+                <cfset local.result = local.obj.userLogin(form.userNameInput,form.passwordInput)>
                 <cfif local.result>
                     <cflocation  url="userHome.cfm">
                 <cfelse>

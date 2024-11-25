@@ -201,15 +201,17 @@
         <cfset local.result = true>
 
         <cfquery name="selectQuery"> 
-            SELECT Email
+            SELECT Email,Mobile,ID
             FROM contactsTable
-            WHERE Email = < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >
-                AND createdBy = < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >
+            WHERE (Email = < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" > OR
+                Mobile = < cfqueryparam value = '#arguments.mobile#' cfsqltype = "cf_sql_varchar" >) AND
+                createdBy = < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" > AND
+                NOT ID = < cfqueryparam value = '#session.editID#' cfsqltype = "cf_sql_varchar" >
         </cfquery>
 
         <cfset local.uploadPath = expandPath('./assets/uploadImages')>
 
-        <cfif selectQuery.len() GT 1>
+        <cfif QueryRecordCount(selectQuery) OR arguments.Email EQ session.userDetails.emailID>
             <cfset local.result = false>
         <cfelse>
             <cfquery name="profileQuery"> 
@@ -246,7 +248,6 @@
                 WHERE ID = < cfqueryparam value = '#session.editId#' cfsqltype = "cf_sql_varchar" >
             </cfquery>
         </cfif>
-
         <cfreturn local.result>
     </cffunction>
 
@@ -310,6 +311,7 @@
                 ,Email
                 ,Mobile
             FROM contactsTable
+            WHERE createdBy = < cfqueryparam value = "#session.userDetails.ID#" >
         </cfquery>
 
         <cfspreadsheet action="write" filename="../assets/spreadSheets/addressBookcontacts.xlsx" overwrite="true" query="excelSheet" sheetname="courses"> 

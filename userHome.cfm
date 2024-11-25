@@ -9,6 +9,7 @@
     </head>
     <body>
         <cfoutput>
+            <cfset local.obj = new Components.addressbook()>
             <cfset local.pdf = application.obj.getPdf()>
             <form action="" method="post" enctype="multipart/form-data" id="fromId">
                 <cfif structKeyExists(form,"alertBtn")>
@@ -32,6 +33,22 @@
                     <div class="userContentDiv d-flex align-items-center justify-content-center" id="contentDiv">
                         <div class="bodyContents w-100 " id="bodyContents">
                             <div class="fileHeader d-flex justify-content-between">
+                                <cfif structKeyExists(form, "createDetailButton")>
+                                    <cfset local.result = local.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfif local.result>
+                                        <span class="fw-bold text-success">Contact added Succesfully</span>
+                                    <cfelse>
+                                        <span class="fw-bold text-danger">Contact already exist</span>
+                                    </cfif>
+                                </cfif>
+                                <cfif structKeyExists(form, "editDetailButton")>
+                                    <cfset local.result = local.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfif local.result>
+                                       <span class="fw-bold text-success">Contact updated Succesfully</span>
+                                    <cfelse>
+                                        <span class="fw-bold text-danger">Contact already exist</span>
+                                    </cfif>
+                                </cfif>
                                 <div class="fileButtons ms-auto">
                                     <a href="assets/pdfs/addressBookcontacts.pdf" download = "ReportPDF" class="text-decoration-none" name="pdfButton">
                                         <img src="assets/images/pdf (1).png" class="fileImage mx-1" width="32px" height="32px">
@@ -52,7 +69,7 @@
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
                                 </div>
-                                <cfset local.result = application.obj.contactListView()>
+                                <cfset local.result = local.obj.contactListView()>
                                 <cfif local.result.len()>
                                     <div class="userContactsDiv d-flex flex-column ms-3" id="userContactsDiv">
                                         <div class="contactTableHead d-flex">
@@ -272,20 +289,8 @@
                     </div>
                 </div>
             </form>
-            <cfif structKeyExists(form, "createDetailButton")>
-                <cfset local.result = application.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                <cfif local.result>
-                    <cflocation  url="userHome.cfm" addToken="no">
-                </cfif>
-            </cfif>
-            <cfif structKeyExists(form, "editDetailButton")>
-                <cfset local.result = application.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                <cfif local.result>
-                    <cflocation  url="userHome.cfm" addToken="no">
-                </cfif>
-            </cfif> 
             <cfif local.pdf.len()>
-                <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no">
+                <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no" orientation = "landscape">
                     <table>
                         <tr>
                             <th>FirstName</th>
