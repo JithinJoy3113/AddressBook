@@ -49,7 +49,7 @@
                                     <label class ="newButton ms-1" for="upload">Upload Image:<br>
                                     <input id="uploadProfile" name="uploadProfile" type="file" class="signUpImage mt-2">
                                 </div>
-                                <div class="buttonDiv mx-auto">
+                                <div class="regButtonDiv mx-auto">
                                     <button type="submit" class="loginButton" id="loginBtuuon" name="userSignUp" onclick="return signUpValidate()">Register</button>
                                 </div>    
                             </div>

@@ -23,7 +23,6 @@
         </cfif>
 
         <cfif len(selectQuery.emailID) LT 1>
-
             <cfquery name="userSignup">
                INSERT INTO userLogin (
                     fullName
@@ -40,7 +39,6 @@
                     ,< cfqueryparam value = '#local.fileName#' cfsqltype = "cf_sql_varchar" >
                     )
             </cfquery>
-
         <cfelse>
             <cfset local.result = false>
         </cfif>
@@ -100,6 +98,7 @@
     </cffunction>
 
     <cffunction  name="createContact" returnType="boolean">
+    
         <cfargument  name="title" required="true">
         <cfargument  name="firstName" required="true">
         <cfargument  name="lastName" required="true">
@@ -340,6 +339,61 @@
         </cfquery>
 
         <cfreturn excelSheet>
+    </cffunction>
+
+    <cffunction  name="ssoLogin" returnType="boolean">
+        
+        <cfargument  name="loginDetails" required="true">
+        
+        <cfset local.name = arguments.loginDetails['name']>
+        <cfset local.email = arguments.loginDetails['other']['email']>
+        <cfset local.userName = arguments.loginDetails['other']['given_name']>
+        <cfset local.img = arguments.loginDetails['other']['picture']>
+        <cfset local.result = true>
+
+        <cfquery name="selectQuery">
+           SELECT ID
+                ,emailID
+                ,password
+                ,fullname
+                ,IMAGE
+            FROM userLogin
+            where
+                emailId = <cfqueryparam value = '#local.email#' cfsqltype = "cf_sql_varchar" >
+        </cfquery>
+
+        <cfif queryRecordCount(selectQuery) GT 0>
+            <cfset session.userDetails = selectQuery>
+            <cfreturn true>
+        <cfelse>
+            <cfquery name="ssoInsert">
+            INSERT INTO userLogin (
+                    fullName
+                    ,emailID
+                    ,userName
+                    ,IMAGE
+                    )
+                VALUES (
+                    < cfqueryparam value = '#local.name#' cfsqltype = "cf_sql_varchar" >
+                    ,< cfqueryparam value = '#local.email#' cfsqltype = "cf_sql_varchar" >
+                    ,< cfqueryparam value = '#local.userName#' cfsqltype = "cf_sql_varchar" >
+                    ,< cfqueryparam value = '#local.img#' cfsqltype = "cf_sql_varchar" >
+                    )
+            </cfquery>
+            <cfquery name="selectQuery">
+                SELECT ID
+                        ,emailID
+                        ,password
+                        ,fullname
+                        ,IMAGE
+                FROM userLogin
+                where
+                    emailId=<cfqueryparam value='#local.email#' cfsqltype = "cf_sql_varchar" >
+            </cfquery>
+            <cfset session.userDetails = selectQuery>
+        </cfif>
+
+        <cfreturn true>
     </cffunction>
 
 </cfcomponent>
