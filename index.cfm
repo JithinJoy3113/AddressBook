@@ -9,6 +9,7 @@
     </head>
     <body>
         <div class="bodyContent d-flex flex-column">
+            <cfset local.obj = new Components.addressbook()>
             <form method="post" action="">
                 <div class="headerDiv d-flex justify-content-between align-items-center">
                     <div class="logoDiv">
@@ -38,7 +39,7 @@
                                 <span class="errorMessage" id="emailError"></span>
                                 <input type="text" class="inputField" name="passwordInput" id="passwordInput" placeholder="Password">
                                 <span class="errorMessage" id="passwordError"></span>
-                                <div class="buttonDiv mx-auto">
+                                <div class="regButtonDiv mx-auto">
                                     <button type="submit" class="loginButton" name="loginButton" id="" onclick="return loginValidation()">LOGIN</button>
                                 </div>    
                                 <span class="loginSignup mx-auto mt-4">Or Sign In Using</span>
@@ -50,9 +51,9 @@
                                     </a>
                                 </div>
                                 <div class="fbLogo mx-2">
-                                    <a href="">
+                                    <button type="submit" name="googleSignup" class="border-0">
                                         <img src="assets/images/google.jpg" alt="" width="55" height="55">
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                             <span class="loginCreate mt-3">Don't have an account? 
@@ -62,14 +63,18 @@
                     </div>
                 </div>
             </form>
+            <cfset session.result = "dgxfgjvkhvj">
             <cfif structKeyExists(form, "loginButton")>
-                <cfset local.result = application.obj.userLogin(form.userNameInput,form.passwordInput)>
+                <cfset local.result = local.obj.userLogin(form.userNameInput,form.passwordInput)>
                 <cfif local.result>
                     <cflocation  url="userHome.cfm">
                 <cfelse>
                     <span class="fw-bold text-danger mx-auto">Invalid user login<span>
                 </cfif>
             </cfif>
+            <cfif structKeyExists(form, "googleSignup")>
+                    <cflocation  url="sso.cfm">
+                </cfif> 
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/script.js"></script>

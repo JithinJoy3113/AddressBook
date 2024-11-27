@@ -28,8 +28,9 @@ body{
 }
 .loginContentDiv{
     margin-top: 50px;
+    margin-bottom: 50px;
     border-radius: 30px;
-    box-shadow: 12px 12px 10px 10px rgb(206, 213, 216);
+    box-shadow: 12px 12px 10px 1px rgb(209, 215, 218);
 }
 .loginLeftDiv{
     padding: 180px 60px;
@@ -43,10 +44,14 @@ body{
     padding: 5px 30px;
     font-size: 14px;
 }
+.detailsRow{
+    border-bottom: 1px solid #b8dcf7;;
+}
 .newButton{
     font-size: 14px;
     color: grey;
 }
+
 .inputField:focus{
     outline: none;
 }
@@ -64,6 +69,7 @@ body{
 .loginRight{
     padding: 20px 30px;
     background-color: white;
+    border-radius: 0px 30px 30px 0px;
 }
 .loginHead{
     font-size: 24px;
@@ -71,17 +77,14 @@ body{
     color: #387cb4;
 }
 .loginButton{
-    border-color: #5195cc;
+    border: none;
     border-radius: 20px;
     color: #387cb4;
     width: auto;
     border-width: thin;
     font-weight: bold;
-}
-.loginButton{
     padding: 6px 120px;
     font-size: 14px;
-    margin-top: 40px;
 }
 .loginSignup,.inputProfile{
     font-size: 14px;
@@ -136,11 +139,14 @@ body{
     font-size: 14px;
     font-weight: 700;
 }
+.nameSpan,.emailSpan,.phoneSpan{
+    font-weight: 600;
+}
 .nameHead,.nameSpan{
     width: 86px;
 }
 .emailHead,.emailSpan{
-    width: 195px;
+    width: 190px;
 }
 .phoneHead,.phoneSpan{
     width: 120px;
@@ -156,11 +162,11 @@ body{
    padding: 2px 0px 2px 0px;
 }
 .detailsFont,.contactName{
-    font-size: 15px;
+    font-size: 13px;
 }
 .editButtonDiv{
-    padding-left: 32px ;
-    padding-right: 32px;
+    padding-left: 12px ;
+    padding-right: 12px;
 }
 .showContactDiv{
     display: none;
@@ -184,7 +190,11 @@ body{
 }
 .createClose{
     background-color: #bacedf;
-
+}
+.regButtonDiv{
+    border: 1px solid #5195cc;
+    border-radius: 20px;
+    margin-top: 40px;
 }
 .contactNameDiv{
     padding-bottom: 10px;

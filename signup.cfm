@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-<!---     <cfdump  var="#application#"> --->
+        <cfset local.obj = new Components.addressbook()>
         <div class="bodyContent d-flex flex-column">
             <div class="headerDiv d-flex justify-content-between align-items-center">
                 <div class="logoDiv">
@@ -49,7 +49,7 @@
                                     <label class ="newButton ms-1" for="upload">Upload Image:<br>
                                     <input id="uploadProfile" name="uploadProfile" type="file" class="signUpImage mt-2">
                                 </div>
-                                <div class="buttonDiv mx-auto">
+                                <div class="regButtonDiv mx-auto">
                                     <button type="submit" class="loginButton" id="loginBtuuon" name="userSignUp" onclick="return signUpValidate()">Register</button>
                                 </div>    
                             </div>
@@ -61,7 +61,7 @@
                 </div>
             </form>
             <cfif structKeyExists(form, "userSignUp")>
-                <cfset local.result = application.obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
+                <cfset local.result = local.obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
                 <cfif local.result>
                     <span class="text-success fw-bold mx-auto">User Registration Success</span>
                 <cfelse>
