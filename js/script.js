@@ -268,7 +268,7 @@ var deleteId;
 function deleteButton(ID){
     deleteId = ID.value;
     $("#deleteConfirm").css({"display":"flex"});
-    $('#displayContent').addClass('disabled');
+    $("#bodyContents").addClass("disabled");
 }
 
 function deleteAlert(confirm){ 
@@ -284,7 +284,7 @@ function deleteAlert(confirm){
             success: function (response) {
                 if(response){
                     $("#deleteConfirm").css({"display":"none"});
-                    $('#displayContent').removeClass('disabled');
+                    $('#bodyContents').removeClass('disabled');
                 }
             }
          });
@@ -292,7 +292,7 @@ function deleteAlert(confirm){
     else{
         valid = false;
         $("#deleteConfirm").css({"display":"none"});
-        $('#displayContent').removeClass('disabled');
+        $('#bodyContents').removeClass('disabled');
     }
     return valid;
 }

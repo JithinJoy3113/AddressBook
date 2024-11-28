@@ -2,6 +2,8 @@
     <cfset this.name = 'app'>
     <cfset this.sessionManagement = true>
     <cfset this.datasource = "database-jithin">
+    <cfset this.ormEnabled = true>
+    <cfset this.ormSettings = {cflocation="fetchdata",dbcreate ="update"}>
 <!---     <cfset application.obj= new Components.addressbook()>  --->
 
     <cffunction  name="onRequest" returnType="void">
