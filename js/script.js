@@ -1,3 +1,7 @@
+$(document).on("click", function () {
+    $(".removeSpan").hide();
+});
+
 function viewContact(ID){
     let id = ID.value;
     if(id){
@@ -7,11 +11,11 @@ function viewContact(ID){
             data:{
                 id: id
             },
-            success: function (response) {   
+            success: function (response) {
                 let data = JSON.parse(response);
                 let dateNew = new Date(data.DOB);
                 formatDate = dateNew.getDate()+"/"+dateNew.getMonth()+"/"+dateNew.getFullYear();
-                $("#showContactDiv").css({"display":"flex"});  
+                $("#showContactDiv").css({"display":"flex"});
                 $('#bodyContents').addClass('disabled');
                 $("#contactName").text(data.FIRSTNAME+ data.LASTNAME);
                 $("#contactGender").text(data.GENDER);
@@ -31,7 +35,7 @@ function viewContact(ID){
 }
 
 function viewContactClose(){
-    $("#showContactDiv").css({"display":"none"});  
+    $("#showContactDiv").css({"display":"none"});
     $('#bodyContents').removeClass('disabled');
 }
 
@@ -264,7 +268,7 @@ var deleteId;
 function deleteButton(ID){
     deleteId = ID.value;
     $("#deleteConfirm").css({"display":"flex"});
-    $('#displayContent').addClass('disabled');
+    $("#bodyContents").addClass("disabled");
 }
 
 function deleteAlert(confirm){ 
@@ -280,7 +284,7 @@ function deleteAlert(confirm){
             success: function (response) {
                 if(response){
                     $("#deleteConfirm").css({"display":"none"});
-                    $('#displayContent').removeClass('disabled');
+                    $('#bodyContents').removeClass('disabled');
                 }
             }
          });
@@ -288,7 +292,7 @@ function deleteAlert(confirm){
     else{
         valid = false;
         $("#deleteConfirm").css({"display":"none"});
-        $('#displayContent').removeClass('disabled');
+        $('#bodyContents').removeClass('disabled');
     }
     return valid;
 }
@@ -299,7 +303,7 @@ function logoutValidate(){
 }
 
 function logoutAlert(value){
-    
+
     let valid = true;
     if(value == 'yes'){
         console.log('asfgdhfnjm')
@@ -411,18 +415,18 @@ function loginValidation(){
 }
 
 function printContacts(){
-   
-    var printContents = $("#userContactsDiv").innerHTML;
+
+    var printContents = document.getElementById("userContactsDiv").innerHTML;
     var originalContents = document.body.innerHTML;
     document.body.innerHTML = printContents;
     $(".editButton").css({"display":"none"})
     window.print();
     document.body.innerHTML = originalContents;
 }
+
 function getExcel(){
     $.ajax({
         url:'./Components/addressbook.cfc?method=getExcel',
         type: "post"
     })
-
 }

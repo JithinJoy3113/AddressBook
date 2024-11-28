@@ -9,6 +9,13 @@
     </head>
     <body>
         <cfoutput>
+            <!--- <cfif structKeyExists(session,"ssoDetails") AND !structKeyExists(session,"userDetails")>
+                <cfset local.loginDetails = session.ssoDetails>
+                <cfset local.obj = new Components.addressbook()>
+                <cfset local.result = local.obj.ssoLogin(local.loginDetails)>
+                <cflocation  url="userHome.cfm" addtoken="no">
+            </cfif> --->
+            <cfset local.obj = new Components.addressbook()>
             <cfset local.pdf = application.obj.getPdf()>
             <form action="" method="post" enctype="multipart/form-data" id="fromId">
                 <cfif structKeyExists(form,"alertBtn")>
@@ -32,6 +39,22 @@
                     <div class="userContentDiv d-flex align-items-center justify-content-center" id="contentDiv">
                         <div class="bodyContents w-100 " id="bodyContents">
                             <div class="fileHeader d-flex justify-content-between">
+                                <cfif structKeyExists(form, "createDetailButton")>
+                                    <cfset local.result = local.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfif local.result>
+                                        <span class="fw-bold text-success removeSpan">Contact added Succesfully</span>
+                                    <cfelse>
+                                        <span class="fw-bold text-danger removeSpan">Contact already exist</span>
+                                    </cfif>
+                                </cfif>
+                                <cfif structKeyExists(form, "editDetailButton")>
+                                    <cfset local.result = local.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfif local.result>
+                                       <span class="fw-bold text-success removeSpan">Contact updated Succesfully</span>
+                                    <cfelse>
+                                        <span class="fw-bold text-danger removeSpan">Contact already exist</span>
+                                    </cfif>
+                                </cfif>
                                 <div class="fileButtons ms-auto">
                                     <a href="assets/pdfs/addressBookcontacts.pdf" download = "ReportPDF" class="text-decoration-none" name="pdfButton">
                                         <img src="assets/images/pdf (1).png" class="fileImage mx-1" width="32px" height="32px">
@@ -47,13 +70,19 @@
                             <div class="userDetailsDiv d-flex mt-3 w-100">
                                 <div class="userProfileDiv d-flex flex-column align-items-center">
                                     <div class="userProfile">
-                                        <img src="assets/uploadImages/#session.userDetails.image#" alt="" width="100px" height="100px" class="rounded-circle">
+                                        <cfif trim(len(#session.userDetails.password#))>
+                                            <img src="assets/uploadImages/#session.userDetails.image#" alt="" width="100px" height="100px" class="rounded-circle">
+                                        <cfelse>
+                                            <img src="#session.userDetails.image#" width="100px" height="100px" class="rounded-circle">
+                                        </cfif>
+                                        
                                     </div>
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
                                 </div>
-                                <cfset local.result = application.obj.contactListView()>
-                                <cfif local.result.len()>
+<!---                            <cfset local.result = local.obj.contactListView()> --->
+                                <cfset local.users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#'})>
+                                <cfif local.users.len()>
                                     <div class="userContactsDiv d-flex flex-column ms-3" id="userContactsDiv">
                                         <div class="contactTableHead d-flex">
                                             <span class="nameHead">NAME</span>
@@ -61,27 +90,28 @@
                                             <span class="phoneHead">PHONE NUMBER</span>
                                         </div>
                                         <div class="ContactsDetailsDiv d-flex flex-column">
-                                                <cfloop query="#local.result#">
+                                                <cfloop array="#local.users#" item="contact">
                                                     <div class="detailsRow d-flex align-items-center  py-3">
                                                         <div class="detailsDiv d-flex align-items-center">
-                                                            <img src="assets/uploadImages/#Profile#" alt="" width="70px" height="70px" class="rounded-circle">
-                                                            <div class="nameSpan detailsFont ms-3">#FirstName# #LastName#</div>
-                                                            <div class="emailSpan detailsFont">#Email#</div>
-                                                            <div class="phoneSpan detailsFont">#Mobile#</div>
+                                                            <img src="assets/uploadImages/#contact.getProfile()#" alt="" width="70px" height="70px" class="rounded-circle">
+                                                            <div class="nameSpan detailsFont ms-3">#contact.getFirstName()# #contact.getLastName()#</div>
+                                                            <div class="emailSpan detailsFont">#contact.getEmail()#</div>
+                                                            <div class="phoneSpan detailsFont">#contact.getMobile()#</div>
                                                         </div>
                                                         <div class="detailsButtonDiv d-flex">
                                                             <div class="editButtonDiv">
-                                                                <button class="editButton" type="button" onclick="editContact(this)" id="editButtonId" value="#ID#">EDIT</button>
+                                                                <button class="editButton" type="button" onclick="editContact(this)" id="editButtonId" value="#contact.getID()#">EDIT</button>
                                                             </div>
                                                             <div class="editButtonDiv">
-                                                                <button class="editButton" type="button" onclick="deleteButton(this)" id="deleteButtonId" value="#ID#">DELETE</button>
+                                                                <button class="editButton" type="button" onclick="deleteButton(this)" id="deleteButtonId" value="#contact.getID()#">DELETE</button>
                                                             </div>
                                                             <div class="editButtonDiv">
-                                                                <button class="editButton" type="button" onclick="viewContact(this)" id="viewButtonId" value="#ID#">VIEW</button>
+                                                                <button class="editButton" type="button" onclick="viewContact(this)" id="viewButtonId" value="#contact.getID()#">VIEW</button>
                                                             </div>
                                                         </div><br>
                                                     </div>
                                                 </cfloop> 
+                                                <cfset ormFlush()>
                                         </div>
                                     </div>
                                 <cfelse>
@@ -189,7 +219,7 @@
                                     <button type="button" class="createClose border-0" onclick="createClose()"><img width="35" height="35" src="https://img.icons8.com/sf-regular/48/387cb4/close-window.png" alt="close-window"/></button>
                                 </div>
                                 <div class="createProfileImage px-4 py-3">
-                                    <img src="assets/images/defaultProfile.jpg" alt="" width="110px" height="110px" class="mt-5 mx-2" id="editImage">
+                                    <img src="assets/images/defaultProfile.jpg" alt="" width="110px" height="110px" class="mt-5 mx-2 rounded-circle" id="editImage">
                                 </div>
                             </div>
                         </div> 
@@ -272,20 +302,8 @@
                     </div>
                 </div>
             </form>
-            <cfif structKeyExists(form, "createDetailButton")>
-                <cfset local.result = application.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                <cfif local.result>
-                    <cflocation  url="userHome.cfm" addToken="no">
-                </cfif>
-            </cfif>
-            <cfif structKeyExists(form, "editDetailButton")>
-                <cfset local.result = application.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                <cfif local.result>
-                    <cflocation  url="userHome.cfm" addToken="no">
-                </cfif>
-            </cfif> 
             <cfif local.pdf.len()>
-                <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no">
+                <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no" orientation = "landscape">
                     <table>
                         <tr>
                             <th>FirstName</th>
