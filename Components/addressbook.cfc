@@ -47,6 +47,7 @@
     </cffunction>
 
     <cffunction  name="userLogin" returnType="boolean">
+
         <cfargument  name="userName" required="true">
         <cfargument  name="password" required="true">
 
@@ -68,6 +69,15 @@
         <cfelse>
             <cfset local.result = false>
         </cfif>
+        <cfschedule
+                action="update"
+                task="#session.userDetails.emailID#-BirthdayMail"
+                operation="HTTPRequest"
+                startDate="#dateFormat(now())#"
+                startTime="9:51 AM"
+                endTime = "" 
+                url="http://addressbook.com/Components/component.cfc?method=birthdayWishes"
+                interval="daily" />
         <cfreturn local.result>
     </cffunction>
 
@@ -364,6 +374,15 @@
 
         <cfif queryRecordCount(selectQuery) GT 0>
             <cfset session.userDetails = selectQuery>
+            <cfschedule
+                mode="application"
+                action="update"
+                task="#session.userDetails.emailID#-BirthdayMail"
+                operation="HTTPRequest"
+                startDate="#dateFormat(now())#"
+                startTime="01:35 PM"
+                url="http://localhost/demo.cfm"
+                interval="daily" />
             <cfreturn true>
         <cfelse>
             <cfquery name="ssoInsert">
@@ -392,8 +411,35 @@
             </cfquery>
             <cfset session.userDetails = selectQuery>
         </cfif>
-
+        
         <cfreturn true>
+    </cffunction>
+
+    <cffunction  name="birthdayWishes" access="public">
+
+    <cfargument  name="id" required="true">
+
+        <cfquery name="selectDob">
+            select 
+                DOB
+                , Email
+                , createdBy
+                , firstName
+                , lastName
+            from contactsTable
+            where 
+                createdBy = <cfqueryparam value='#arguments.id#' cfsqltype = "cf_sql_varchar" >
+        </cfquery>
+        <cfif queryRecordCount(selectDob)>
+            <cfloop query="selectDob">
+                <cfif  dateFormat(selectDob.DOB,'mm-dd-yyyy') EQ dateFormat(now(),'mm-dd-yyyy')>
+                    <cfmail  from="jithinj3113@gmail.com"  subject="subject"  to="#selectDob.Email#">
+                            jithin
+                    </cfmail>
+                </cfif>
+            </cfloop>
+        </cfif>
+        
     </cffunction>
 
 </cfcomponent>
