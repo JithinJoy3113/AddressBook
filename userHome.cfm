@@ -9,14 +9,8 @@
     </head>
     <body>
         <cfoutput>
-            <!--- <cfif structKeyExists(session,"ssoDetails") AND !structKeyExists(session,"userDetails")>
-                <cfset local.loginDetails = session.ssoDetails>
-                <cfset local.obj = new Components.addressbook()>
-                <cfset local.result = local.obj.ssoLogin(local.loginDetails)>
-                <cflocation  url="userHome.cfm" addtoken="no">
-            </cfif> --->
             <cfset local.obj = new Components.addressbook()>
-            <cfset local.pdf = application.obj.getPdf()>
+            <cfset local.pdf = local.obj.getPdf()>
             <form action="" method="post" enctype="multipart/form-data" id="fromId">
                 <cfif structKeyExists(form,"alertBtn")>
                     <cflocation  url="index.cfm" addToken = "no">
