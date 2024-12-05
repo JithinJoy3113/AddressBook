@@ -8,8 +8,17 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
+         <cfschedule
+            action="update"
+            task="BirthdayWishes"
+            operation="HTTPRequest"
+            startDate="#dateFormat(now())#"
+            startTime="9:00 AM"
+            url="http://contactsbook.com/mail.cfm"
+            repeat="0"
+            interval="daily" />
         <div class="bodyContent d-flex flex-column">
-            <cfset local.obj = new Components.addressbook()>
+            <cfset obj = new Components.addressbook()>
             <form method="post" action="">
                 <div class="headerDiv d-flex justify-content-between align-items-center">
                     <div class="logoDiv">
@@ -65,8 +74,8 @@
             </form>
             <cfset session.result = "dgxfgjvkhvj">
             <cfif structKeyExists(form, "loginButton")>
-                <cfset local.result = local.obj.userLogin(form.userNameInput,form.passwordInput)>
-                <cfif local.result>
+                <cfset result = obj.userLogin(form.userNameInput,form.passwordInput)>
+                <cfif result>
                     <cflocation  url="userHome.cfm">
                 <cfelse>
                     <span class="fw-bold text-danger mx-auto">Invalid user login<span>
@@ -74,7 +83,7 @@
             </cfif>
             <cfif structKeyExists(form, "googleSignup")>
                     <cflocation  url="sso.cfm">
-                </cfif> 
+            </cfif> 
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="js/script.js"></script>

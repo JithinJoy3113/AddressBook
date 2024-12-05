@@ -10,7 +10,7 @@
 
         <cfargument  name="requestPage" required="true"> 
 
-        <cfset local.excludePages = ["/signUp.cfm","/index.cfm","/sso.cfm","/demo.cfm"]>
+        <cfset local.excludePages = ["/signUp.cfm","/index.cfm","/sso.cfm","/mail.cfm"]>
 
         <cfif ArrayContains(local.excludePages,arguments.requestPage)>
             <cfinclude template="#arguments.requestPage#">

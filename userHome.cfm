@@ -9,8 +9,8 @@
     </head>
     <body>
         <cfoutput>
-            <cfset local.obj = new Components.addressbook()>
-            <cfset local.pdf = local.obj.getPdf()>
+            <cfset obj = new Components.addressbook()>
+            <cfset pdf = obj.getExcel()>
             <form action="" method="post" enctype="multipart/form-data" id="fromId">
                 <cfif structKeyExists(form,"alertBtn")>
                     <cflocation  url="index.cfm" addToken = "no">
@@ -34,16 +34,16 @@
                         <div class="bodyContents w-100 " id="bodyContents">
                             <div class="fileHeader d-flex justify-content-between">
                                 <cfif structKeyExists(form, "createDetailButton")>
-                                    <cfset local.result = local.obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                                    <cfif local.result>
+                                    <cfset result = obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfif result>
                                         <span class="fw-bold text-success removeSpan">Contact added Succesfully</span>
                                     <cfelse>
                                         <span class="fw-bold text-danger removeSpan">Contact already exist</span>
                                     </cfif>
                                 </cfif>
                                 <cfif structKeyExists(form, "editDetailButton")>
-                                    <cfset local.result = local.obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                                    <cfif local.result>
+                                    <cfset result = obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfif result>
                                        <span class="fw-bold text-success removeSpan">Contact updated Succesfully</span>
                                     <cfelse>
                                         <span class="fw-bold text-danger removeSpan">Contact already exist</span>
@@ -74,9 +74,8 @@
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
                                 </div>
-<!---                            <cfset local.result = local.obj.contactListView()> --->
-                                <cfset local.users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#'})>
-                                <cfif local.users.len()>
+                                <cfset users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#'})>
+                                <cfif users.len()>
                                     <div class="userContactsDiv d-flex flex-column ms-3" id="userContactsDiv">
                                         <div class="contactTableHead d-flex">
                                             <span class="nameHead">NAME</span>
@@ -84,7 +83,7 @@
                                             <span class="phoneHead">PHONE NUMBER</span>
                                         </div>
                                         <div class="ContactsDetailsDiv d-flex flex-column">
-                                                <cfloop array="#local.users#" item="contact">
+                                                <cfloop array="#users#" item="contact">
                                                     <div class="detailsRow d-flex align-items-center  py-3">
                                                         <div class="detailsDiv d-flex align-items-center">
                                                             <img src="assets/uploadImages/#contact.getProfile()#" alt="" width="70px" height="70px" class="rounded-circle">
@@ -296,7 +295,7 @@
                     </div>
                 </div>
             </form>
-            <cfif local.pdf.len()>
+            <cfif pdf.len()>
                 <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no" orientation = "landscape">
                     <table>
                         <tr>
@@ -309,7 +308,7 @@
                             <th>Pincode</th>
                             <th>Image</th>
                         </tr>
-                        <cfloop query="local.pdf">
+                        <cfloop query="pdf">
                             <tr>
                                 <td>#FirstName#</td>
                                 <td>#LastName#</td>

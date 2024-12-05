@@ -6,8 +6,14 @@
     <title>Document</title>
 </head>
 <body>
-uyfytttdfyt
-    <cfset local.obj = new Components.addressbook()>
-    <cfset local.obj.birthdayWishes('AC77F828-7A49-45B1-82A3-593D5701F0B2')>
+
+    <cfschedule
+        action="update"
+        task="BirthdayMail"
+        operation="HTTPRequest"
+        startDate="#dateFormat(now())#"
+        url="http://contactsbook.com/test1.cfm"
+        interval="daily"
+        repeat="1" />
 </body>
 </html>
