@@ -58,6 +58,19 @@ function createContact(){
     $("#createDetailButton").css({"display":"flex"});
 }
 
+$(function(){
+    var dateToday = new Date();
+    var month = dateToday.getMonth() + 1;
+    var day = dateToday.getDay();
+    var year = dateToday.getFullYear();
+    if(month<0)
+        month='0'+month.toString();
+    if(day<10)
+        day='0'+day.toString();
+    var maxDate = year + '-' + month + '-' + day;
+    $('#dateInputField').attr('max', maxDate)
+}) 
+
 function validate(){
     let valid = true; 
 
@@ -74,7 +87,6 @@ function validate(){
     let pincode = $('#pincode').val();
     let email = $('#emailInput').val();
     let mobile = $('#mobile').val();
-
 
     if(title == ""){
         $('#titleLabel').css({"color":"red"});
@@ -203,7 +215,6 @@ let editId;
 function editContact(ID){
     $('#uploadProfile').val('');
     editId = ID.value;
- 
         $.ajax({
             url:'./Components/addressbook.cfc?method=viewContact',
             type: "post",
@@ -229,6 +240,7 @@ function editContact(ID){
                     day  = '0'+day
                 }
                 formatDate = year+"-"+month+"-"+day;
+                $("#editingID").val(data.ID);
                 $("#titleSelect").val(data.TITLE);
                 $("#firstNameInput").val(data.FIRSTNAME);
                 $("#lastNameInput").val(data.LASTNAME);

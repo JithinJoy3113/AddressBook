@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-        <cfset local.obj = new Components.addressbook()>
+        <cfset obj = new Components.addressbook()>
         <div class="bodyContent d-flex flex-column">
             <div class="headerDiv d-flex justify-content-between align-items-center">
                 <div class="logoDiv">
@@ -61,8 +61,14 @@
                 </div>
             </form>
             <cfif structKeyExists(form, "userSignUp")>
-                <cfset local.result = local.obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
-                <cfif local.result>
+                <cfset result = obj.userSignUp(
+                                    fullName=form.fullNameInput,
+                                    email=form.emailInput,
+                                    userName=form.userNameInput,
+                                    password=form.passwordInput,
+                                    image=form.uploadProfile
+                                    )>
+                <cfif result>
                     <span class="text-success fw-bold mx-auto">User Registration Success</span>
                 <cfelse>
                     <span class="text-danger fw-bold mx-auto">Email Already exist</span>
