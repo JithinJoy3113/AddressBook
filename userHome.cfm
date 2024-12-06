@@ -10,10 +10,10 @@
     <body>
         <cfoutput>
             <cfset obj = new Components.addressbook()>
-            <cfset pdf = obj.getExcel()>
-            <form action="" method="post" enctype="multipart/form-data" id="fromId">
+            <cfset pdf = obj.getExcelOrPdf()>
+            <form action = "" method = "post" enctype = "multipart/form-data" id = "fromId">
                 <cfif structKeyExists(form,"alertBtn")>
-                    <cflocation  url="index.cfm" addToken = "no">
+                    <cflocation  url = "index.cfm" addToken = "no">
                 </cfif>
                 <div class="bodyContent d-flex flex-column">
                     <div class="headerDiv d-flex justify-content-between align-items-center">
@@ -34,15 +34,46 @@
                         <div class="bodyContents w-100 " id="bodyContents">
                             <div class="fileHeader d-flex justify-content-between">
                                 <cfif structKeyExists(form, "createDetailButton")>
-                                    <cfset result = obj.createContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect, form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
-                                    <cfif result>
+                                    <cfset result = obj.createContact(
+                                                        title = form.titleSelect,
+                                                        firstName = form.firstNameInput,
+                                                        lastName = form.lastNameInput,
+                                                        gender = form.genderSelect,
+                                                        date = form.dateInput,
+                                                        profile = form.uploadProfile,
+                                                        address = form.addressInput,
+                                                        street = form.streetInput,
+                                                        district = form.districtInput,
+                                                        state = form.stateInput,
+                                                        country = form.countryInput, 
+                                                        pincode = form.pincode,
+                                                        email = form.email,
+                                                        mobile = form.mobile
+                                                        )>
+                                   <cfif result>
                                         <span class="fw-bold text-success removeSpan">Contact added Succesfully</span>
                                     <cfelse>
                                         <span class="fw-bold text-danger removeSpan">Contact already exist</span>
                                     </cfif>
                                 </cfif>
                                 <cfif structKeyExists(form, "editDetailButton")>
-                                    <cfset result = obj.updateContact(form.titleSelect,form.firstNameInput,form.lastNameInput,form.genderSelect,form.dateInput,form.uploadProfile,form.addressInput,form.streetInput,form.districtInput,form.stateInput,form.countryInput,form.pincode,form.email,form.mobile)>
+                                    <cfset result = obj.updateContact(
+                                                        editID = form.editingID,
+                                                        title = form.titleSelect,
+                                                        firstName = form.firstNameInput,
+                                                        lastName = form.lastNameInput,
+                                                        gender = form.genderSelect,
+                                                        date = form.dateInput,
+                                                        profile = form.uploadProfile,
+                                                        address = form.addressInput,
+                                                        street = form.streetInput,
+                                                        district = form.districtInput,
+                                                        state = form.stateInput,
+                                                        country = form.countryInput, 
+                                                        pincode = form.pincode,
+                                                        email = form.email,
+                                                        mobile = form.mobile
+                                                        )>
                                     <cfif result>
                                        <span class="fw-bold text-success removeSpan">Contact updated Succesfully</span>
                                     <cfelse>
@@ -53,7 +84,7 @@
                                     <a href="assets/pdfs/addressBookcontacts.pdf" download = "ReportPDF" class="text-decoration-none" name="pdfButton">
                                         <img src="assets/images/pdf (1).png" class="fileImage mx-1" width="32px" height="32px">
                                     </a>
-                                    <a href="assets/spreadSheets/addressBookcontacts.xlsx" class="text-decoration-none" download = "ReportSheet" name="excelButtonon" onclick="getExcel()">
+                                    <a href="assets/spreadSheets/addressBookcontacts.xlsx" class="text-decoration-none" download = "ReportSheet" name="excelButtonon" onclick="getExcelOrPdf()">
                                         <img src="assets/images/excel.png"  class="fileImage mx-1" alt="" width="32px" height="32px">
                                     </a>
                                     <a href="" onclick="printContacts()" class="text-decoration-none">
@@ -93,6 +124,7 @@
                                                         </div>
                                                         <div class="detailsButtonDiv d-flex">
                                                             <div class="editButtonDiv">
+                                                                <input type="hidden" name="editingID" value="" id="editingID">
                                                                 <button class="editButton" type="button" onclick="editContact(this)" id="editButtonId" value="#contact.getID()#">EDIT</button>
                                                             </div>
                                                             <div class="editButtonDiv">
@@ -114,7 +146,7 @@
                                 </cfif>
                             </div>
                         </div>  
-
+                      
                         <!-- create / edit -->
 
                         <div class="showContactDiv" id="createEditDiv">
@@ -173,17 +205,17 @@
                                     <div class="locationDiv d-flex justify-content-between">
                                         <div class="districtDiv addressDiv">
                                             <label for="district" class="nameLabel mt-3" id="districtLabel">District *</label>
-                                            <input type="text" id="districtSelect" class="addressDiv inputBorder" name="districtInput">
+                                            <input type="text" id="districtSelect" placeholder="Your District" class="addressDiv inputBorder" name="districtInput">
                                         </div>
                                         <div class="stateDiv addressDiv">
                                             <label for="state" class="nameLabel mt-3" id="stateLabel">State *</label>
-                                            <input type="text" id="stateSelect" class="inputBorder addressDiv" name="stateInput">
+                                            <input type="text" id="stateSelect" placeholder="Your State" class="inputBorder addressDiv" name="stateInput">
                                         </div>
                                     </div>
                                     <div class="pincodeMainDiv d-flex justify-content-between">
                                         <div class="countryDiv addressDiv">
                                             <label for="country" class="nameLabel mt-3" id="countryLabel">Country *</label>
-                                            <input type="text" id="countrySelect" class="addressDiv inputBorder" name="countryInput">
+                                            <input type="text" id="countrySelect" placeholder="Your Country" class="addressDiv inputBorder" name="countryInput">
                                         </div>
                                         <div class="pincodeDiv addressDiv">
                                             <label for="pincode" class="nameLabel mt-3" id="pincodeLabel">Pincode *</label>
@@ -296,7 +328,12 @@
                 </div>
             </form>
             <cfif pdf.len()>
-                <cfdocument format = "pdf" filename = "assets/pdfs/addressBookcontacts.pdf" overwrite="true" bookmark="no" orientation = "landscape">
+                <cfdocument format = "pdf"
+                    filename = "assets/pdfs/addressBookcontacts.pdf" 
+                    overwrite = "true"
+                    bookmark = "no" 
+                    orientation = "landscape"
+                    localUrl = "yes">
                     <table>
                         <tr>
                             <th>FirstName</th>
@@ -317,9 +354,9 @@
                                 <td>#Mobile#</td>
                                 <td>#Address#, #Street#, #District#, #State#, #Country#</td>
                                 <td>#Pincode#</td>
-                                <td><img src="assets/uploadImages/#Profile#" width="60" height="60"></td>
+                                <td><img src="assets/uploadImages/google1.jpg" width="60" height="60" alt="sfgb"></td>
                             </tr>
-                        </cfloop>  
+                        </cfloop>
                     </table>
                 </cfdocument>
             </cfif>

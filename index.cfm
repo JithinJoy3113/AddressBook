@@ -73,8 +73,11 @@
                 </div>
             </form>
             <cfset session.result = "dgxfgjvkhvj">
-            <cfif structKeyExists(form, "loginButton")>
-                <cfset result = obj.userLogin(form.userNameInput,form.passwordInput)>
+            <cfif structKeyExists(form, "loginButton")> 
+                <cfset result = obj.userLogin(
+                                    userName=form.userNameInput,
+                                    password=form.passwordInput
+                                    )>
                 <cfif result>
                     <cflocation  url="userHome.cfm">
                 <cfelse>

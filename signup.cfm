@@ -61,7 +61,13 @@
                 </div>
             </form>
             <cfif structKeyExists(form, "userSignUp")>
-                <cfset result = obj.userSignUp(form.fullNameInput,form.emailInput,form.userNameInput,form.passwordInput,form.uploadProfile)>
+                <cfset result = obj.userSignUp(
+                                    fullName=form.fullNameInput,
+                                    email=form.emailInput,
+                                    userName=form.userNameInput,
+                                    password=form.passwordInput,
+                                    image=form.uploadProfile
+                                    )>
                 <cfif result>
                     <span class="text-success fw-bold mx-auto">User Registration Success</span>
                 <cfelse>
