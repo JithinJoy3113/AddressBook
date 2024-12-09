@@ -12,7 +12,9 @@
         <cfset local.encrypPass = Hash(#arguments.password#, 'SHA-512')/> 
 
         <cfquery name="selectQuery">
-            select emailID from userLogin where emailID='#arguments.email#'
+            SELECT emailID 
+            FROM userLogin 
+            WHERE emailID=< cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >
         </cfquery>
 
         <cfif trim(len(arguments.image))>
@@ -44,8 +46,14 @@
         <cfreturn local.result>
     </cffunction>
 
-    <cffunction  name = "loginUserData" returnType = "query">
-        <cfargument  name="userName" required = "true">
+    <cffunction  name = "loginUserData" returnType = "boolean">
+        <cfargument  name="userMail" required = "true">
+        <cfargument  name="password" default="">
+        <cfif arguments.password EQ "">
+            <cfset local.password = "">
+        <cfelse>
+            <cfset local.password = arguments.password>
+        </cfif>
         <cfquery name="selectQuery">
             SELECT ID,
                 emailID,
@@ -53,25 +61,31 @@
                 fullname,
                 IMAGE
             FROM userLogin
-            WHERE emailID = < cfqueryparam value = '#arguments.userName#' cfsqltype = "cf_sql_varchar" >
+            WHERE 
+                password = < cfqueryparam value = '#local.password#' cfsqltype = "cf_sql_varchar" > AND
+                emailID = < cfqueryparam value = #arguments.userMail# cfsqltype = "cf_sql_varchar" >
         </cfquery>
-        <cfreturn selectQuery>
+        <cfif queryRecordCount(selectQuery)>
+            <cfset session.userDetails = selectQuery>
+            <cfreturn true>
+        <cfelse>
+            <cfreturn false>
+        </cfif>
     </cffunction>
 
     <cffunction  name="userLogin" returnType="boolean">
-        <cfargument  name="userName" required="true">
+        <cfargument  name="userMail" required="true">
         <cfargument  name="password" required="true">
 
         <cfset local.result = true>
         <cfset local.encrypPass = Hash(#arguments.password#, 'SHA-512')/> 
-        <cfset local.userData = loginUserData(arguments.userName)>
+        <cfset local.userData = loginUserData(arguments.userMail, local.encrypPass)>
 
-        <cfif local.userData.password EQ local.encrypPass>
-            <cfset session.userDetails = local.userData>
+        <cfif local.userData>
+            <cfreturn local.result>
         <cfelse>
             <cfset local.result = false>
-        </cfif>
-        <cfreturn local.result>
+        </cfif> 
     </cffunction>
 
     <cffunction  name="fetchContacts" returnType="query">
@@ -104,12 +118,6 @@
         <cfreturn contactSelect>
     </cffunction>
 
-    <cffunction  name="logout" returnType="boolean" access="remote">
-        <cfset structClear(session)>
-        <cflocation  url="index.cfm">
-        <cfreturn true>
-    </cffunction>
-
     <cffunction  name="createContact" returnType="any">
         <cfargument  name="title" required="true">
         <cfargument  name="firstName" required="true">
@@ -127,57 +135,62 @@
         <cfargument  name="mobile" required="true">
 
         <cfset local.fileName = "defaultProfile.jpg">
-        <cfset local.fetchContacts = fetchContacts()>
 
-        <cfloop query="#local.fetchContacts#">
-            <cfif arguments.email EQ local.fetchContacts.Email OR arguments.mobile EQ local.fetchContacts.Mobile OR arguments.email EQ session.userDetails.emailID>
-                <cfreturn false>
-            </cfif>
-        </cfloop>
-        <cfif trim(len(arguments.profile))>
-            <cfset local.uploadPath = expandPath('./assets/uploadImages')>
-            <cffile  action="upload" destination="#local.uploadPath#" nameConflict="MakeUnique"> 
-            <cfset local.fileName = cffile.clientFile>
-        </cfif>
-        <cfquery name="insertQuery">
-            INSERT INTO contactsTable (
-                Title,
-                FirstName,
-                LastName,
-                Gender,
-                DOB,
-                Address,
-                Street,
-                District,
-                STATE,
-                Country,
-                Pincode,
-                Email,
-                Mobile,
-                PROFILE,
-                createdBy,
-                createdOn
-                )
-            VALUES (
-                < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.state#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.country#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.pincode#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#arguments.mobile#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#local.fileName#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >,
-                < cfqueryparam value = '#now()#' cfsqltype = "cf_sql_timestamp" >
-                )
+        <cfquery name="selectContacts">
+            SELECT 1
+            FROM contactsTable
+            WHERE Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > OR
+                Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND
+                createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
         </cfquery>
-        <cfreturn true>
+        <cfif selectContacts.len()>
+            <cfreturn false>
+        <cfelse>
+            <cfif trim(len(arguments.profile))>
+                <cfset local.uploadPath = expandPath('./assets/uploadImages')>
+                <cffile  action="upload" destination="#local.uploadPath#" nameConflict="MakeUnique"> 
+                <cfset local.fileName = cffile.clientFile>
+            </cfif>
+            <cfquery name="insertQuery">
+                INSERT INTO contactsTable (
+                    Title,
+                    FirstName,
+                    LastName,
+                    Gender,
+                    DOB,
+                    Address,
+                    Street,
+                    District,
+                    STATE,
+                    Country,
+                    Pincode,
+                    Email,
+                    Mobile,
+                    PROFILE,
+                    createdBy,
+                    createdOn
+                    )
+                VALUES (
+                    < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.state#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.country#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.pincode#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.mobile#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#local.fileName#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#now()#' cfsqltype = "cf_sql_timestamp" >
+                    )
+            </cfquery>
+            <cfreturn true>
+        </cfif>
     </cffunction>
 
     <cffunction  name="updateContact" returnType="boolean" access="remote">
@@ -201,43 +214,45 @@
         <cfset local.fetchContacts = fetchContacts()>
         <cfset local.uploadPath = expandPath('./assets/uploadImages')>
 
-        <cfloop query=#local.fetchContacts#>
-            <cfif (arguments.Email EQ session.userDetails.emailID) OR
-                    ((arguments.Email EQ local.fetchContacts.Email OR arguments.mobile EQ local.fetchContacts.Mobile) AND 
-                    local.fetchContacts.ID NEQ arguments.editID
-                 )>
-                <cfreturn false>
-            <cfelseif local.fetchContacts.ID EQ arguments.editID>
-                <cfset local.fileName = local.fetchContacts.Profile>
-            </cfif>
-        </cfloop>
- 
-        <cfif trim(len(arguments.profile))>
-            <cffile  action = "upload" destination = "#local.uploadPath#" nameConflict = "MakeUnique"> 
-            <cfset local.filename = cffile.clientFile>
-        </cfif>
-
-        <cfquery name = "updateQuery">
-            UPDATE contactsTable
-            SET Title = < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
-                FirstName = < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
-                LastName = < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
-                Gender = < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
-                DOB = < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
-                Address = < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
-                Street = < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
-                District = < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
-                STATE = < cfqueryparam value = '#arguments.state#' cfsqltype = "cf_sql_varchar" >,
-                Country = < cfqueryparam value = '#arguments.country#' cfsqltype = "cf_sql_varchar" >,
-                Pincode = < cfqueryparam value = '#arguments.pincode#' cfsqltype = "cf_sql_varchar" >,
-                Mobile = < cfqueryparam value = '#arguments.mobile#' cfsqltype = "cf_sql_varchar" >,
-                Email = < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >,
-                PROFILE = < cfqueryparam value = '#local.filename#' cfsqltype = "cf_sql_varchar" >,
-                updatedBy = < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >,
-                updatedOn = < cfqueryparam value = '#dateFormat(now())#' cfsqltype = "cf_sql_varchar" >
-            WHERE ID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
+        <cfquery name="selectContacts">
+            SELECT 1
+            FROM contactsTable
+            WHERE Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > OR
+                Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND NOT
+                createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
         </cfquery>
-        <cfreturn true>
+        <cfif selectContacts.len()>
+            <cfreturn false>
+        <cfelse>
+            <cfif trim(len(arguments.profile))>
+                <cffile  action = "upload" destination = "#local.uploadPath#" nameConflict = "MakeUnique"> 
+                <cfset local.filename = cffile.clientFile>
+            <cfelse>
+                <cfset local.fileName = selectContacts.Profile>
+            </cfif>
+
+            <cfquery name = "updateQuery">
+                UPDATE contactsTable
+                SET Title = < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
+                    FirstName = < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
+                    LastName = < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
+                    Gender = < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
+                    DOB = < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
+                    Address = < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
+                    Street = < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
+                    District = < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
+                    STATE = < cfqueryparam value = '#arguments.state#' cfsqltype = "cf_sql_varchar" >,
+                    Country = < cfqueryparam value = '#arguments.country#' cfsqltype = "cf_sql_varchar" >,
+                    Pincode = < cfqueryparam value = '#arguments.pincode#' cfsqltype = "cf_sql_varchar" >,
+                    Mobile = < cfqueryparam value = '#arguments.mobile#' cfsqltype = "cf_sql_varchar" >,
+                    Email = < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >,
+                    PROFILE = < cfqueryparam value = '#local.filename#' cfsqltype = "cf_sql_varchar" >,
+                    updatedBy = < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >,
+                    updatedOn = < cfqueryparam value = '#now()#' cfsqltype = "cf_sql_timestamp" >
+                WHERE ID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
+            </cfquery>
+            <cfreturn true>
+        </cfif>
     </cffunction>
 
     <cffunction  name = "viewContact" returnType = "struct" returnFormat = "JSON" access = "remote">
@@ -255,6 +270,11 @@
             WHERE ID = '#arguments.id#';
         </cfquery>
         <cfreturn true>
+    </cffunction>
+
+    <cffunction  name="logout" returnType="boolean" access="remote">
+        <cfset structClear(session)>
+        <cflocation  url="index.cfm">
     </cffunction>
 
     <cffunction  name = "getExcelOrPdf" returnType = "query" access = "remote"> 
@@ -275,12 +295,10 @@
         <cfset local.email = arguments.loginDetails['other']['email']>
         <cfset local.userName = arguments.loginDetails['other']['given_name']>
         <cfset local.img = arguments.loginDetails['other']['picture']>
-        <cfset local.result = true>
 
         <cfset local.userData = loginUserData(local.email)>
 
-        <cfif queryRecordCount(local.userData)>
-            <cfset session.userDetails = local.userData>
+        <cfif local.userData>
             <cfreturn true>
         <cfelse>
             <cfquery name="ssoInsert">
@@ -298,7 +316,6 @@
                     )
             </cfquery>
             <cfset local.userData = loginUserData(local.email)>
-            <cfset session.userDetails = local.userData>
         </cfif>
         <cfreturn true>
     </cffunction>
@@ -315,5 +332,5 @@
             </cfloop>
         </cfif>
     </cffunction>
-    
+
 </cfcomponent>
