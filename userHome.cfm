@@ -48,7 +48,8 @@
                                                         country = form.countryInput, 
                                                         pincode = form.pincode,
                                                         email = form.email,
-                                                        mobile = form.mobile
+                                                        mobile = form.mobile,
+                                                        roles= form.selectedTags
                                                         )>
                                    <cfif result>
                                         <span class="fw-bold text-success removeSpan">Contact added Succesfully</span>
@@ -72,7 +73,8 @@
                                                         country = form.countryInput, 
                                                         pincode = form.pincode,
                                                         email = form.email,
-                                                        mobile = form.mobile
+                                                        mobile = form.mobile,
+                                                        roles= form.selectedTags
                                                         )>
                                     <cfif result>
                                        <span class="fw-bold text-success removeSpan">Contact updated Succesfully</span>
@@ -89,7 +91,7 @@
                                     </a>
                                     <a href="" onclick="printContacts()" class="text-decoration-none">
                                         <img src="assets/images/printer.png"  class="fileImage mx-1" alt="" width="32px" height="32px">
-                                    </a>                  
+                                    </a>
                                 </div>
                             </div>
                             <div class="userDetailsDiv d-flex mt-3 w-100">
@@ -115,7 +117,7 @@
                                         </div>
                                         <div class="ContactsDetailsDiv d-flex flex-column">
                                                 <cfloop array="#users#" item="contact">
-                                                    <div class="detailsRow d-flex align-items-center  py-3">
+                                                    <div class="detailsRow d-flex align-items-center  py-3"  id="#contact.getID()#">
                                                         <div class="detailsDiv d-flex align-items-center">
                                                             <img src="assets/uploadImages/#contact.getProfile()#" alt="" width="70px" height="70px" class="rounded-circle">
                                                             <div class="nameSpan detailsFont ms-3">#contact.getFirstName()# #contact.getLastName()#</div>
@@ -172,7 +174,19 @@
                                             <input type="text" class="lastNameInput inputBorder mt-3" id="lastNameInput" name="lastNameInput" placeholder="Your Last Name">
                                         </div>
                                     </div>
-                                    <div class="genderMainDiv d-flex mt-3 justify-content-between">
+                                    <div class="roleMainDiv d-flex mt-3 justify-content-between">
+                                        <div class="multiselectContainer d-flex flex-column">
+                                            <label for="name" class="nameLabel" id="roleLabel">Role *</label>
+                                            <div class="optionsContainer mt-3" id="optionsContainer">
+                                                <div class="option" data-value="1">Role 1</div>
+                                                <div class="option" data-value="2">Role 2</div>
+                                                <div class="option" data-value="3">Role 3</div>
+                                                <div class="option" data-value="4">Role 4</div>
+                                            </div>
+                                            <div class="multiselectInput placeholder inputBorder mt-3 pb-1" id="multiselectInput">Select Roles</div>
+                                            <div class="selectedTags" id="selectedTags" data-value=""></div>
+                                            <input type="hidden" value="" name="selectedTags" id="optionInsert">
+                                        </div>
                                         <div class="genderDiv d-flex flex-column">
                                             <label for="name" class="nameLabel" id="genderLabel">Gender *</label>
                                             <select id="genderSelect" name="genderSelect" class="genderSelect inputBorder mt-3">
@@ -183,12 +197,15 @@
                                         </div>
                                         <div class="dobDiv d-flex flex-column">
                                             <label for="name" class="nameLabel" id="dobLabel">Date of Birth *</label>
-                                            <input type="date" class="inputBorder dateInput mt-3" id="dateInputField" name="dateInput">
+                                            <input type="date" class="inputBorder dateInput mt-3" id="dateInputField" name="dateInput" max="#dateFormat(now(),'yyyy-mm-dd')#">
                                         </div>
                                     </div>
-                                    <div class="createUpload d-flex flex-column mt-3">
-                                        <label for="name" class="nameLabel">Upload Photo</label>
-                                        <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
+                                    <div class="genderMainDiv d-flex mt-3 justify-content-between">
+                                        
+                                        <div class="createUpload d-flex flex-column mt-3">
+                                            <label for="name" class="nameLabel">Upload Photo</label>
+                                            <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
+                                        </div>
                                     </div>
                                     <span class="errorMessage" id="createErrorMessage"></span>
                                     <span class="personalDetails mt-4">Contact Details</span>
@@ -231,7 +248,8 @@
                                             <label for="mobile" class="nameLabel mt-3" id="mobileLabel">Mobile *</label>
                                             <input type="text" id="mobile" name="mobile" class="inputBorder addressDiv" placeholder="Your Number">
                                         </div>
-                                    </div>
+                                    </div> 
+
                                 </div>
                                 <span class="errorMessage" id="createErrorMessageTwo"></span>
                                 <div class="crateDetailButtonDiv d-flex justify-content-center py-3">
@@ -273,6 +291,11 @@
                                         <div class="contactName ms-4" id="contactDob"></div>
                                     </div>
                                     <div class="contactNameDiv d-flex">
+                                        <div class="contactLabel text-capitalize">Role</div>
+                                        <div class="contactSymbol">:</div>
+                                        <div class="contactName ms-4" id="contactRole"></div>
+                                    </div>
+                                    <div class="contactNameDiv d-flex">
                                         <div class="contactLabel text-capitalize">Address</div>
                                         <div class="contactSymbol">:</div>
                                         <div class="contactName ms-4" id="contactAddress"></div>
@@ -306,11 +329,11 @@
                         <!-- delete contact -->
 
                         <div class="deleteConfirm" id="deleteConfirm">
-                            <span class="logourtAlertHead py-2 d-flex justify-content-center fw-bold text-white">Delete Page</span>
+                            <span class="logourtAlertHead py-2 d-flex justify-content-center fw-bold text-white">Delete Contact</span>
                             <div class="logoutMesage  d-flex flex-column justify-content-center">
                                 <span class="confirmMessage fw-bold">Are you sure want to Delete?</span>
-                                <button class="alertBtn mt-3" type="submit" name="alertDeleteBtn" id="alertDeleteBtn" onClick="return deleteAlert('yes')">Delete</button>
-                                <button class="alertCancelBtn mt-2" type="sumbit" name="alertDeleteBtn" id="alertDeleteBtn" onClick="return deleteAlert('no')">Cancel</button>
+                                <button class="alertBtn mt-3" type="button" name="alertDeleteBtn" id="alertDeleteBtn" onClick="deleteAlert('yes')">Delete</button>
+                                <button class="alertCancelBtn mt-2" type="button" name="alertDeleteBtn" id="alertDeleteBtn" onClick="deleteAlert('no')">Cancel</button>
                             </div>
                         </div> 
                         
@@ -340,6 +363,7 @@
                             <th>LastName</th>
                             <th>Gender</th>
                             <th>Email</th>
+                            <th>Role</th>
                             <th>Mobile</th>
                             <th>Address</th>
                             <th>Pincode</th>
@@ -351,10 +375,11 @@
                                 <td>#LastName#</td>
                                 <td>#Gender#</td>
                                 <td>#Email#</td>
+                                <td>#Roles#</td>
                                 <td>#Mobile#</td>
                                 <td>#Address#, #Street#, #District#, #State#, #Country#</td>
                                 <td>#Pincode#</td>
-                                <td><img src="assets/uploadImages/google1.jpg" width="60" height="60" alt="sfgb"></td>
+                                <td><img src="assets/uploadImages/#Profile#" width="60" height="60"></td>
                             </tr>
                         </cfloop>
                     </table>
