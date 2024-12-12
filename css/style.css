@@ -241,7 +241,7 @@ body{
     font-weight: 700;
 }
 .firstNameInput{
-    max-width: 90px;
+    max-width: 120px;
 }
 .lastNameInput{
     width: 130px;
@@ -312,3 +312,67 @@ input:focus,select:focus{
     padding: 50px 100px 50px 100px;
     min-width: 849px;
 }
+
+
+.multiselectContainer {
+    width: 100px;
+    position: relative;
+}
+
+.multiselectInput {
+    width: 108px;
+    background-color: #ffffff;
+    font-size: 16px;
+    color: #333333;
+    cursor: pointer;
+    position: relative;
+}
+
+.placeholder {
+    color: #1f1d1d;
+    font-size: 14px;
+}
+
+.optionsContainer {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    background-color: #ffffff;
+    z-index: 10;
+}
+
+.option {
+    padding: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #333333;
+}
+
+.option:hover {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.selectedTags {
+    margin-top: 10px;
+}
+
+.selectedTag {
+    display: flex;
+    margin: 5px 5px 0 0;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+}
+table, th, td {
+    border: 1px solid black;
+  }

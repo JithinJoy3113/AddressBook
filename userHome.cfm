@@ -10,7 +10,6 @@
     <body>
         <cfoutput>
             <cfset obj = new Components.addressbook()>
-            <cfset pdf = obj.getExcelOrPdf()>
             <form action = "" method = "post" enctype = "multipart/form-data" id = "fromId">
                 <cfif structKeyExists(form,"alertBtn")>
                     <cflocation  url = "index.cfm" addToken = "no">
@@ -83,10 +82,10 @@
                                     </cfif>
                                 </cfif>
                                 <div class="fileButtons ms-auto">
-                                    <a href="assets/pdfs/addressBookcontacts.pdf" download = "ReportPDF" class="text-decoration-none" name="pdfButton">
+                                     <a href="##" class="text-decoration-none" name="pdfButton" onClick = "pdfDownload('pdfs')">
                                         <img src="assets/images/pdf (1).png" class="fileImage mx-1" width="32px" height="32px">
                                     </a>
-                                    <a href="assets/spreadSheets/addressBookcontacts.xlsx" class="text-decoration-none" download = "ReportSheet" name="excelButtonon" onclick="getExcelOrPdf()">
+                                    <a href="##" class="text-decoration-none" name="excelButtonon" onclick = "pdfDownload('spreadSheets')">
                                         <img src="assets/images/excel.png"  class="fileImage mx-1" alt="" width="32px" height="32px">
                                     </a>
                                     <a href="" onclick="printContacts()" class="text-decoration-none">
@@ -107,7 +106,9 @@
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
                                 </div>
-                                <cfset users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#'})>
+                                <cfset ormReload()>
+                                <cfset users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#', activeStatus= 1})>
+                        
                                 <cfif users.len()>
                                     <div class="userContactsDiv d-flex flex-column ms-3" id="userContactsDiv">
                                         <div class="contactTableHead d-flex">
@@ -138,7 +139,6 @@
                                                         </div><br>
                                                     </div>
                                                 </cfloop> 
-                                                <cfset ormFlush()>
                                         </div>
                                     </div>
                                 <cfelse>
@@ -349,42 +349,7 @@
                         </div>
                     </div>
                 </div>
-            </form>
-            <cfif pdf.len()>
-                <cfdocument format = "pdf"
-                    filename = "assets/pdfs/addressBookcontacts.pdf" 
-                    overwrite = "true"
-                    bookmark = "no" 
-                    orientation = "landscape"
-                    localUrl = "yes">
-                    <table>
-                        <tr>
-                            <th>FirstName</th>
-                            <th>LastName</th>
-                            <th>Gender</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Mobile</th>
-                            <th>Address</th>
-                            <th>Pincode</th>
-                            <th>Image</th>
-                        </tr>
-                        <cfloop query="pdf">
-                            <tr>
-                                <td>#FirstName#</td>
-                                <td>#LastName#</td>
-                                <td>#Gender#</td>
-                                <td>#Email#</td>
-                                <td>#Roles#</td>
-                                <td>#Mobile#</td>
-                                <td>#Address#, #Street#, #District#, #State#, #Country#</td>
-                                <td>#Pincode#</td>
-                                <td><img src="assets/uploadImages/#Profile#" width="60" height="60"></td>
-                            </tr>
-                        </cfloop>
-                    </table>
-                </cfdocument>
-            </cfif>
+                </form>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
             <script src="js/script.js"></script>
         </cfoutput>

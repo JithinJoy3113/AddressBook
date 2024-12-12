@@ -6,4 +6,5 @@
     <cfproperty  name="ID">
     <cfproperty  name="profile">
     <cfproperty  name="createdBy">
+    <cfproperty  name="activeStatus">
 </cfcomponent>
