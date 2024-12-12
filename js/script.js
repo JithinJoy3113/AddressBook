@@ -1,3 +1,50 @@
+var selectedValues = [];
+document.addEventListener('DOMContentLoaded', function () {
+    const multiselectInput = document.getElementById('multiselectInput');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const selectedTags = document.getElementById('selectedTags');
+
+    // Toggle options dropdown
+    multiselectInput.addEventListener('click', function () {
+        optionsContainer.style.display = optionsContainer.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Select an option
+    optionsContainer.addEventListener('click', function (event) {
+        console.log(selectedValues)
+        if (event.target.classList.contains('option')) {
+            const value = event.target.getAttribute('data-value');
+            const text = event.target.textContent;
+
+            if (!selectedValues.includes(value)) {
+                selectedValues.push(value);
+                const tag = document.createElement('span');
+                tag.classList.add('selectedTag');
+                tag.textContent = text;
+                tag.setAttribute('data-value', value);
+                selectedTags.appendChild(tag);
+                multiselectInput.classList.remove('placeholder');
+                multiselectInput.textContent = '';
+            }
+        }
+    });
+
+    selectedTags.addEventListener('click', function (event) {
+        if (event.target.classList.contains('selectedTag')) {
+            const value = event.target.getAttribute('data-value');
+            selectedValues=selectedValues.filter(item => item !== value);
+            event.target.remove();
+        }
+    });
+
+    document.addEventListener('click', function (event) {       //close option
+        if (!event.target.closest('.multiselectContainer')) {
+            optionsContainer.style.display = 'none';
+        }
+    });
+});
+
+
 $(document).on("click", function () {
     $(".removeSpan").hide();
 });
@@ -20,6 +67,7 @@ function viewContact(ID){
                 $("#contactName").text(data.FIRSTNAME+ data.LASTNAME);
                 $("#contactGender").text(data.GENDER);
                 $("#contactDob").text(formatDate);
+                $("#contactRole").text(data.ROLES);
                 $("#contactAddress").text(`${data.ADDRESS}, ${data.STREET}, ${data.DISTRICT}, ${data.STATE}, ${data.COUNTRY}`);
                 $("#contactPincode").text(data.PINCODE);
                 $("#contactEmail").text(data.EMAIL);
@@ -40,13 +88,15 @@ function viewContactClose(){
 }
 
 function createClose(){
+    selectedValues=[];
+    $('.selectedTags').text('')
     $('#bodyContents').removeClass('disabled');
     $("#createEditDiv").css({"display":"none"});
     $('#showContactInfoDiv').find('label').css({'color':"#387cb4"});
     $('#createErrorMessage').text('');
     $('#createErrorMessageTwo').text('');
-    
 }
+
 
 function createContact(){
     $('#showContactInfoDiv').find('input,select').val('');
@@ -57,19 +107,6 @@ function createContact(){
     $("#editDetailButton").css({"display":"none"});
     $("#createDetailButton").css({"display":"flex"});
 }
-
-$(function(){
-    var dateToday = new Date();
-    var month = dateToday.getMonth() + 1;
-    var day = dateToday.getDay();
-    var year = dateToday.getFullYear();
-    if(month<0)
-        month='0'+month.toString();
-    if(day<10)
-        day='0'+day.toString();
-    var maxDate = year + '-' + month + '-' + day;
-    $('#dateInputField').attr('max', maxDate)
-}) 
 
 function validate(){
     let valid = true; 
@@ -111,7 +148,16 @@ function validate(){
     else{
         $('#lastNameLabel').css({"color":"#387cb4"});
     }
-    
+
+    if(!selectedValues.length){
+        $('#roleLabel').css({"color":"red"});
+        valid = false;
+    }
+    else{
+        $('#roleLabel').css({"color":"#387cb4"});
+        $('#optionInsert').val(selectedValues);
+    }
+
     if(gender == ""){
         $('#genderLabel').css({"color":"red"});
         valid = false;
@@ -222,8 +268,8 @@ function editContact(ID){
                 id:editId
             },
             success: function (response) {
-                console.log(response)
                 let data = JSON.parse(response);
+                let roles=data.ROLES.split(",");
                 $("#createEditDiv").css({"display":"flex"}); 
                 $("#editDetailButton").css({"display":"flex"});
                 $("#createDetailButton").css({"display":"none"});
@@ -240,6 +286,18 @@ function editContact(ID){
                     day  = '0'+day
                 }
                 formatDate = year+"-"+month+"-"+day;
+
+                for (var i=0; i < roles.length;i++){
+                    let string=roles[i];
+                    let roleID={"Role1":"1","Role2":"2","Role3":"3","Role4":"4"}
+                    const tag = document.createElement('span');
+                    tag.classList.add('selectedTag');
+                    tag.textContent = string;
+                    tag.setAttribute('data-value', roleID[string]);
+                    selectedTags.appendChild(tag);
+                    selectedValues.push(roleID[string]);
+                }
+
                 $("#editingID").val(data.ID);
                 $("#titleSelect").val(data.TITLE);
                 $("#firstNameInput").val(data.FIRSTNAME);
@@ -297,6 +355,7 @@ function deleteAlert(confirm){
                 if(response){
                     $("#deleteConfirm").css({"display":"none"});
                     $('#bodyContents').removeClass('disabled');
+                    document.getElementById(deleteId).remove();
                 }
             }
          });
@@ -306,7 +365,6 @@ function deleteAlert(confirm){
         $("#deleteConfirm").css({"display":"none"});
         $('#bodyContents').removeClass('disabled');
     }
-    return valid;
 }
 
 function logoutValidate(){
@@ -318,7 +376,6 @@ function logoutAlert(value){
 
     let valid = true;
     if(value == 'yes'){
-        console.log('asfgdhfnjm')
         $.ajax({
             url:'./Components/addressbook.cfc?method=logout',
             type: "post",
@@ -436,9 +493,28 @@ function printContacts(){
     document.body.innerHTML = originalContents;
 }
 
-function getExcel(){
+function getExcelOrPdf(){
     $.ajax({
-        url:'./Components/addressbook.cfc?method=getExcel',
+        url:'./Components/addressbook.cfc?method=getExcelOrPdf',
         type: "post"
     })
+}
+
+function pdfDownload(key){
+    $.ajax({
+        url:'./Components/addressbook.cfc?method=getExcelOrPdf',
+        type: "post",
+        data:{
+            value:key
+        },
+        success:function(response){
+            let path=JSON.parse(response)
+            let tag=document.createElement('a');
+            tag.href=`assets/${key}/${path}`;
+            tag.download=path;
+            tag.click();
+            tag.remove();
+        }
+    })
+
 }
