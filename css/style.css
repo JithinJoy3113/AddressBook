@@ -112,7 +112,7 @@ body{
 .userProfileDiv{
     background-color: white;
     max-height: 240px;
-    padding: 15px 20px;
+    padding: 15px 18px;
 }
 .userContactsDiv{
     background-color: white;
@@ -375,4 +375,22 @@ input:focus,select:focus{
 }
 table, th, td {
     border: 1px solid black;
-  }
+}
+
+.excelFileHead{
+    font-size: 18px;
+    font-weight: 700;
+    color: #387cb4;
+}
+.templateButton{
+    border: none;
+    background-color: #bacedf;
+    padding: 5px 5px;
+    color: #387cb4;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 10px;
+}
+.excelFileHeading{
+    border-bottom: 2px solid #387cb4;;
+}

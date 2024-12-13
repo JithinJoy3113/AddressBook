@@ -85,6 +85,7 @@ function viewContact(ID){
 function viewContactClose(){
     $("#showContactDiv").css({"display":"none"});
     $('#bodyContents').removeClass('disabled');
+    $("#showExcelDiv").css({"display":"none"});
 }
 
 function createClose(){
@@ -516,5 +517,9 @@ function pdfDownload(key){
             tag.remove();
         }
     })
+}
 
+function createContactExcel(){
+    $("#showExcelDiv").css({"display":"flex"});
+    $('#bodyContents').addClass('disabled');
 }
