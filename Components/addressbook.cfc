@@ -12,9 +12,12 @@
         <cfset local.encrypPass = Hash(#arguments.password#, 'SHA-512')/> 
 
         <cfquery name="selectQuery">
-            SELECT emailID 
-            FROM userLogin 
-            WHERE emailID=< cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >
+            SELECT 
+                emailID 
+            FROM 
+                userLogin 
+            WHERE 
+                emailID=< cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >
         </cfquery>
 
         <cfif trim(len(arguments.image))>
@@ -25,12 +28,13 @@
 
         <cfif len(selectQuery.emailID) LT 1>
             <cfquery name="userSignup">
-               INSERT INTO userLogin (
-                    fullName,
-                    emailID,
-                    userName,
-                    password,
-                    IMAGE
+               INSERT INTO 
+                    userLogin (
+                        fullName,
+                        emailID,
+                        userName,
+                        password,
+                        IMAGE
                     )
                 VALUES (
                     < cfqueryparam value = '#arguments.fullName#' cfsqltype = "cf_sql_varchar" >,
@@ -50,12 +54,14 @@
         <cfargument  name="userMail" required = "true">
         <cfargument  name="password" default="">
         <cfquery name="selectQuery">
-            SELECT ID,
+            SELECT 
+                ID,
                 emailID,
                 password,
                 fullname,
                 IMAGE
-            FROM userLogin
+            FROM 
+                userLogin
             WHERE 
                 emailID = < cfqueryparam value = #arguments.userMail# cfsqltype = "cf_sql_varchar" > AND
             <cfif arguments.password.len()>
@@ -100,11 +106,12 @@
             <cfreturn true>
         <cfelse>
             <cfquery name="ssoInsert">
-                INSERT INTO userLogin (
-                    fullName,
-                    emailID,
-                    userName,
-                    IMAGE
+                INSERT INTO 
+                    userLogin (
+                        fullName,
+                        emailID,
+                        userName,
+                        IMAGE
                     )
                 VALUES (
                     < cfqueryparam value = '#local.name#' cfsqltype = "cf_sql_varchar" >,
@@ -144,12 +151,13 @@
                 c.Profile,
                 STRING_AGG(r.Roles , ', ') AS Roles
             FROM 
-                contactsTable c
+                contactsTable c 
             LEFT JOIN 
                 contactRoles cr ON c.ID = cr.contactID 
             LEFT JOIN 
                 roleTable r ON cr.roleID = r.roleID
-            WHERE #local.columnName# = < cfqueryparam value = #arguments.ID# cfsqltype = "cf_sql_bigint" > AND 
+            WHERE 
+                #local.columnName# = < cfqueryparam value = #arguments.ID# cfsqltype = "cf_sql_bigint" > AND 
                 activeStatus = < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" > 
             GROUP BY 
                 c.ID,c.Title,c.FirstName,c.LastName,c.Gender,c.DOB,c.Address,c.Street,
@@ -157,97 +165,6 @@
         </cfquery>
         <cfreturn contactSelect>
     </cffunction>
-
-    <!--- <cffunction  name="createContact" returnType="any">
-        <cfargument  name="title" required="true">
-        <cfargument  name="firstName" required="true">
-        <cfargument  name="lastName" required="true">
-        <cfargument  name="gender" required="true">
-        <cfargument  name="date" required="true">
-        <cfargument  name="profile">
-        <cfargument  name="address" required="true">
-        <cfargument  name="street" required="true">
-        <cfargument  name="district" required="true">
-        <cfargument  name="state" required="true">
-        <cfargument  name="country" required="true">
-        <cfargument  name="pincode" required="true">
-        <cfargument  name="email" required="true">
-        <cfargument  name="mobile" required="true">
-        <cfargument  name="roles" required="true">
-
-        <cfset local.fileName = "defaultProfile.jpg">
-
-        <cfquery name="selectContacts">
-            SELECT 1
-            FROM contactsTable
-            WHERE Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > OR
-                Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND
-                createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
-        </cfquery>
-        <cfif selectContacts.len()>
-            <cfreturn false>
-        <cfelse>
-            <cfif trim(len(arguments.profile))>
-                <cfset local.uploadPath = expandPath('./assets/uploadImages')>
-                <cffile  action="upload" destination="#local.uploadPath#" nameConflict="MakeUnique"> 
-                <cfset local.fileName = cffile.clientFile>
-            </cfif>
-            <cfquery name="insertQuery" result="insertRow">
-                INSERT INTO contactsTable (
-                    Title,
-                    FirstName,
-                    LastName,
-                    Gender,
-                    DOB,
-                    Address,
-                    Street,
-                    District,
-                    STATE,
-                    Country,
-                    Pincode,
-                    Email,
-                    Mobile,
-                    PROFILE,
-                    createdBy,
-                    createdOn,
-                    activeStatus
-                    )
-                VALUES (
-                    < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.state#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.country#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.pincode#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.email#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.mobile#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#local.fileName#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#now()#' cfsqltype = "cf_sql_timestamp" >,
-                    < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" >
-                    )
-            </cfquery>
-            <cfset local.generatedKey = insertRow.generatedKey>
-            <cfloop list="#arguments.roles#" item="role">
-                <cfquery name="insertRole">
-                    INSERT INTO contactRoles(
-                        contactID,
-                        roleID
-                    )
-                    VALUES(
-                        < cfqueryparam value = '#local.generatedKey#' cfsqltype = "cf_sql_varchar" >,
-                        < cfqueryparam value = '#role#' cfsqltype = "CF_SQL_INTEGER" >
-                    )
-                </cfquery>
-            </cfloop>
-            <cfreturn true>
-        </cfif>
-    </cffunction> --->
 
     <cffunction  name="createContact" returnType="any">
         <cfargument  name="title" required="true">
@@ -269,12 +186,15 @@
         <cfset local.fileName = "defaultProfile.jpg">
 
         <cfquery name="selectContacts">
-            SELECT Email,
+            SELECT 
+                Email,
                 Mobile,
                 createdBy,
                 activeStatus
-            FROM contactsTable
-            WHERE Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > AND
+            FROM 
+                contactsTable
+            WHERE 
+                Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > AND
                 Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND
                 createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
         </cfquery>
@@ -329,9 +249,10 @@
             <cfset local.generatedKey = insertRow.generatedKey>
             <cfloop list="#arguments.roles#" item="role">
                 <cfquery name="insertRole">
-                    INSERT INTO contactRoles(
-                        contactID,
-                        roleID
+                    INSERT INTO 
+                        contactRoles(
+                            contactID,
+                            roleID
                     )
                     VALUES(
                         < cfqueryparam value = '#local.generatedKey#' cfsqltype = "cf_sql_varchar" >,
@@ -367,8 +288,10 @@
 
         <cfquery name="selectContacts">
             SELECT *
-            FROM contactsTable
-            WHERE Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > AND
+            FROM 
+                contactsTable
+            WHERE 
+                Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > AND
                 Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND
                 createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
         </cfquery>
@@ -383,8 +306,10 @@
             </cfif>
 
             <cfquery name = "updateQuery">
-                UPDATE contactsTable
-                SET Title = < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
+                UPDATE 
+                    contactsTable
+                SET 
+                    Title = < cfqueryparam value = '#arguments.title#' cfsqltype = "cf_sql_varchar" >,
                     FirstName = < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
                     LastName = < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
                     Gender = < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
@@ -400,19 +325,23 @@
                     PROFILE = < cfqueryparam value = '#local.filename#' cfsqltype = "cf_sql_varchar" >,
                     updatedBy = < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_varchar" >,
                     updatedOn = < cfqueryparam value = '#now()#' cfsqltype = "cf_sql_timestamp" >
-                WHERE ID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
+                WHERE 
+                    ID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
             </cfquery>
 
             <cfquery name="deleteRoles">
-                DELETE FROM contactRoles
-                WHERE contactID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
+                DELETE FROM 
+                    contactRoles
+                WHERE 
+                    contactID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
             </cfquery>
 
             <cfloop list="#arguments.roles#" item="role">
                 <cfquery name="insertRole">
-                    INSERT INTO contactRoles(
-                        contactID,
-                        roleID
+                    INSERT INTO 
+                        contactRoles(
+                            contactID,
+                            roleID
                     )
                     VALUES(
                         < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >,
@@ -434,11 +363,14 @@
     <cffunction  name = "deleteRow" access = "remote">
         <cfargument  name = "id" required = "true">
         <cfquery name = "deleteTableRow">
-            UPDATE contactsTable
-            SET activeStatus = < cfqueryparam value = 0 cfsqltype = "cf_sql_varchar" >,
+            UPDATE 
+                contactsTable
+            SET 
+                activeStatus = < cfqueryparam value = 0 cfsqltype = "cf_sql_varchar" >,
                 deletedBy = < cfqueryparam value = '#session.userDetails.ID#' cfsqltype = "cf_sql_bigint" >,
                 deletedOn = < cfqueryparam value = '#now()#' cfsqltype = "cf_sql_timestamp" >
-            WHERE ID = '#arguments.id#';
+            WHERE
+                ID = '#arguments.id#';
         </cfquery>
         <cfreturn true>
     </cffunction>
@@ -459,7 +391,7 @@
                     overwrite = "true"
                     bookmark = "no" 
                     orientation = "landscape"
-                    localUrl = "yes">
+                    localUrl = "yes"> 
                     <table>
                         <tr>
                             <th>FirstName</th>

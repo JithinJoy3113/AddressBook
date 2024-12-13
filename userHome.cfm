@@ -105,6 +105,7 @@
                                     </div>
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
+                                    <button type="button" class="createContactButton mt-1 mb-2" onclick="createContactExcel()">UPLOAD CONTACT</button>
                                 </div>
                                 <cfset ormReload()>
                                 <cfset users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#', activeStatus= 1})>
@@ -200,12 +201,9 @@
                                             <input type="date" class="inputBorder dateInput mt-3" id="dateInputField" name="dateInput" max="#dateFormat(now(),'yyyy-mm-dd')#">
                                         </div>
                                     </div>
-                                    <div class="genderMainDiv d-flex mt-3 justify-content-between">
-                                        
-                                        <div class="createUpload d-flex flex-column mt-3">
-                                            <label for="name" class="nameLabel">Upload Photo</label>
-                                            <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
-                                        </div>
+                                    <div class="createUpload d-flex flex-column mt-3">
+                                        <label for="name" class="nameLabel">Upload Photo</label>
+                                        <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
                                     </div>
                                     <span class="errorMessage" id="createErrorMessage"></span>
                                     <span class="personalDetails mt-4">Contact Details</span>
@@ -323,6 +321,33 @@
                             </div>
                             <div class="showContactImage d-flex px-4 py-5">
                                 <img src="" alt="" width="110px" height="110px" class="mt-5"  id="contactImage">
+                            </div>
+                        </div> 
+
+<!---                         upload contacts using excel --->
+
+                        <div class="showContactDiv" id="showExcelDiv">
+                            <div class="showContactDetails d-flex flex-column">
+                                <div class="showContactHead">
+                                    UPLOAD CONTACT
+                                </div>
+                                <div class="d-flex templateButtonDiv justify-content-end mt-3">
+                                    <button type="button" onclick="pdfDownload('spreadSheets')" class="templateButton me-2">Template With Data</button>
+                                    <button class="templateButton" id="templateButton" onclick="">Plain Template</button>
+                                </div>
+                                <div class="showContactInfoDiv d-flex flex-column mt-4 pt-1">
+                                    <div class="excelFileHeading">
+                                        <span class="excelFileHead">Upload Excel File</span>
+                                    </div>
+                                    <div class="createUpload d-flex flex-column mt-3">
+                                        <label for="name" class="nameLabel">Upload Excel *</label>
+                                        <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
+                                    </div>
+                                </div>
+                                <div class="crateDetailButtonDiv d-flex justify-content-center pt-5 pb-3">
+                                    <button type="submit" class="createDetailButton me-2" id="crateExcelButton" onclick="">SUBMIT</button>
+                                    <button type="button" class="editButton" id="crateDetailButton" onclick="viewContactClose()">CLOSE</button>
+                                </div>
                             </div>
                         </div> 
 
