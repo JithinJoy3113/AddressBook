@@ -81,6 +81,11 @@
                                         <span class="fw-bold text-danger removeSpan">Contact already exist</span>
                                     </cfif>
                                 </cfif>
+                                <cfif structKeyExists(form, "createExcelSubmit")>
+                                    <cfset result = obj.createExcelContact(form.uploadProfile)>
+                            
+                                    <cfdump  var="#result#">
+                                </cfif>
                                 <div class="fileButtons ms-auto">
                                      <a href="##" class="text-decoration-none" name="pdfButton" onClick = "pdfDownload('pdfs')">
                                         <img src="assets/images/pdf (1).png" class="fileImage mx-1" width="32px" height="32px">
@@ -105,7 +110,7 @@
                                     </div>
                                     <span class="profileName mt-2">#session.userDetails.fullName#</span>
                                     <button type="button" class="createContactButton mt-4 mb-2" onclick="createContact()">CREATE CONTACT</button>
-                                    <button type="button" class="createContactButton mt-1 mb-2" onclick="createContactExcel()">UPLOAD CONTACT</button>
+                                    <button type="button" class="uploadContactButton mt-1 mb-2" onclick="createContactExcel()">UPLOAD CONTACT</button>
                                 </div>
                                 <cfset ormReload()>
                                 <cfset users = entityLoad('fetchdata',{createdBy='#session.userDetails.ID#', activeStatus= 1})>
@@ -333,7 +338,7 @@
                                 </div>
                                 <div class="d-flex templateButtonDiv justify-content-end mt-3">
                                     <button type="button" onclick="pdfDownload('spreadSheets')" class="templateButton me-2">Template With Data</button>
-                                    <button class="templateButton" id="templateButton" onclick="">Plain Template</button>
+                                    <button type="button" class="templateButton" id="templateButton" onclick="plainExcelTemplate()">Plain Template</button>
                                 </div>
                                 <div class="showContactInfoDiv d-flex flex-column mt-4 pt-1">
                                     <div class="excelFileHeading">
@@ -345,7 +350,7 @@
                                     </div>
                                 </div>
                                 <div class="crateDetailButtonDiv d-flex justify-content-center pt-5 pb-3">
-                                    <button type="submit" class="createDetailButton me-2" id="crateExcelButton" onclick="">SUBMIT</button>
+                                    <button type="submit" class="createDetailButton me-2" id="createExcelSubmit" onclick="" name="createExcelSubmit">SUBMIT</button>
                                     <button type="button" class="editButton" id="crateDetailButton" onclick="viewContactClose()">CLOSE</button>
                                 </div>
                             </div>

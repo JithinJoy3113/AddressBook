@@ -134,6 +134,9 @@
         </cfif>
         <cfquery name=contactSelect>
               SELECT 
+                <cfif arguments.ID EQ "excelSheet">
+                    TOP 0
+                </cfif> 
 				c.ID,
                 c.Title,
                 c.FirstName,
@@ -156,9 +159,11 @@
                 contactRoles cr ON c.ID = cr.contactID 
             LEFT JOIN 
                 roleTable r ON cr.roleID = r.roleID
-            WHERE 
-                #local.columnName# = < cfqueryparam value = #arguments.ID# cfsqltype = "cf_sql_bigint" > AND 
-                activeStatus = < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" > 
+            <cfif arguments.ID NEQ "excelSheet">
+                WHERE 
+                    #local.columnName# = < cfqueryparam value = #arguments.ID# cfsqltype = "cf_sql_bigint" > AND 
+                    activeStatus = < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" > 
+            </cfif>
             GROUP BY 
                 c.ID,c.Title,c.FirstName,c.LastName,c.Gender,c.DOB,c.Address,c.Street,
                 c.District,c.STATE,c.Country,c.Pincode,c.Email,c.Mobile,c.Profile;
@@ -443,6 +448,53 @@
                 </cfif>
             </cfloop>
         </cfif>
+    </cffunction>
+
+    <cffunction  name="plainExcelSheet" returnType="boolean" access = "remote"> 
+        <cfset local.plainTemplate = fetchContacts("excelSheet")>
+        <cfset local.plainTemplate=QueryDeleteColumn(local.plainTemplate,"Profile")>
+        <cfspreadsheet 
+                action="write" 
+                filename="../assets/spreadSheets/plainTemplate.xlsx" 
+                overwrite="true" 
+                query="local.plainTemplate" 
+                sheetname="contacts"> 
+        <cfreturn true>
+    </cffunction>
+
+    <cffunction  name="createExcelContact" returnType="any">
+        <cfargument  name="uploadProfile">
+        <cfspreadsheet  action="read" src="#arguments.uploadProfile#" query="excelHeader" headerRow="1" excludeHeaderRow="true">
+        <cfset local.columnName = excelHeader.columnList>
+        <cfset local.count = 0>
+        <cfset local.excelData = structNew()>
+        <cfset local.resultQuery = queryNew(local.columnName)>
+        <cfset QueryAddColumn(local.resultQuery, "Result", "varchar",[])>
+        <cfset local.rows = 0>
+
+       <cfloop query="excelHeader">
+        <cfset local.missing = "">
+             <cfloop list="#excelHeader.columnList#" item="column">
+                <cfset local.excelData["#column#"] = excelHeader[column][excelHeader.currentRow]>
+                <cfset local.value = excelHeader[column][excelHeader.currentRow]>
+                <cfset local.columnName = excelHeader[column]>
+                <cfif len(local.value) GT 0 OR local.columnName EQ "result"> 
+                    <cfcontinue>
+                <cfelse>
+                    <cfset local.missing = local.missing & "," & column>
+                    <cfset local.rows += 1>
+                </cfif> 
+            </cfloop>
+            <cfif local.rows GT 0>
+                <cfset local.excelData["Result"] = local.missing & "Missing">
+            </cfif>
+            <cfset QueryAddRow(local.resultQuery)>
+            <cfloop collection="#local.excelData#" item="item">
+                <cfset local.resultQuery.item[local.resultQuery.recordCount] = local.excelData[item]>
+            </cfloop>
+        </cfloop >
+
+        <cfreturn  local.excelData >
     </cffunction>
 
 </cfcomponent>

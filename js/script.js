@@ -523,3 +523,19 @@ function createContactExcel(){
     $("#showExcelDiv").css({"display":"flex"});
     $('#bodyContents').addClass('disabled');
 }
+
+function plainExcelTemplate(){
+    $.ajax({
+        url:'./Components/addressbook.cfc?method=plainExcelSheet',
+        type: "post",
+        success:function(response){
+            let tag=document.createElement('a');
+            let path="plainTemplate.xlsx"
+            tag.href=`assets/spreadSheets/plainTemplate.xlsx`;
+            tag.download=path;
+            tag.click();
+            tag.remove();
+        }
+    })
+    }
+
