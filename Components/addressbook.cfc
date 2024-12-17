@@ -134,6 +134,9 @@
         </cfif>
         <cfquery name=contactSelect>
               SELECT 
+                <cfif arguments.ID EQ "excelSheet">
+                    TOP 0
+                </cfif> 
 				c.ID,
                 c.Title,
                 c.FirstName,
@@ -156,9 +159,11 @@
                 contactRoles cr ON c.ID = cr.contactID 
             LEFT JOIN 
                 roleTable r ON cr.roleID = r.roleID
-            WHERE 
-                #local.columnName# = < cfqueryparam value = #arguments.ID# cfsqltype = "cf_sql_bigint" > AND 
-                activeStatus = < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" > 
+            <cfif arguments.ID NEQ "excelSheet">
+                WHERE 
+                    #local.columnName# = < cfqueryparam value = #arguments.ID# cfsqltype = "cf_sql_bigint" > AND 
+                    activeStatus = < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" > 
+            </cfif>
             GROUP BY 
                 c.ID,c.Title,c.FirstName,c.LastName,c.Gender,c.DOB,c.Address,c.Street,
                 c.District,c.STATE,c.Country,c.Pincode,c.Email,c.Mobile,c.Profile;
@@ -443,6 +448,101 @@
                 </cfif>
             </cfloop>
         </cfif>
+    </cffunction>
+
+    <cffunction  name="plainExcelSheet" returnType="boolean" access = "remote"> 
+        <cfset local.plainTemplate = fetchContacts("excelSheet")>
+        <cfset local.plainTemplate=QueryDeleteColumn(local.plainTemplate,"Profile")>
+        <cfset local.plainTemplate=QueryDeleteColumn(local.plainTemplate,"ID")>
+        <cfspreadsheet 
+                action="write" 
+                filename="../assets/spreadSheets/plainTemplate.xlsx" 
+                overwrite="true" 
+                query="local.plainTemplate" 
+                sheetname="contacts"> 
+        <cfreturn true>
+    </cffunction>
+
+    <cffunction  name="createExcelContact" returnType="any">
+        <cfargument  name="uploadProfile">
+        <cfspreadsheet  action="read" src="#arguments.uploadProfile#" query="excelHeader" headerRow="1" excludeHeaderRow="true">
+        <cfset local.count = 0>
+        <cfset local.excelData = structNew()>
+        <cfset local.resultQuery = Duplicate(excelHeader)>
+        <cfset QueryAddColumn(local.resultQuery, "Result", "varchar",[])>
+        <cfset local.missingDatas = 0>
+        
+
+       <cfloop query="excelHeader">
+       <cfset local.count += 1>
+        <cfset local.missing = "">
+             <cfloop list="#excelHeader.columnList#" item="column">
+                <!--- <cfset local.excelData["#column#"] = excelHeader[column][excelHeader.currentRow]> --->
+                <cfset local.value = excelHeader[column][excelHeader.currentRow]>
+                <cfset local.columnName = excelHeader[column]>
+                <cfif len(local.value) GT 0 OR local.columnName EQ "Result"> 
+                    <cfcontinue>
+                <cfelse>
+                    <cfset local.missing = local.missing & "," & column>
+                    <cfset local.missingDatas += 1>
+                </cfif> 
+            </cfloop>
+            <cfif local.missingDatas GT 0>
+                <cfset local.resultQuery.Result[local.count] = local.missing & "Missing">
+            <cfelse>
+                <cfset local.title = excelHeader.Title>
+                <cfset local.firstName = excelHeader.FirstName>
+                <cfset local.lastName = excelHeader.LastName>
+                <cfset local.gender = excelHeader.Gender>
+                <cfset local.date = excelHeader.DOB>
+                <cfset local.address = excelHeader.Address>
+                <cfset local.street = excelHeader.Street>
+                <cfset local.district = excelHeader.District>
+                <cfset local.state = excelHeader.State>
+                <cfset local.country = excelHeader.Country>
+                <cfset local.pincode = excelHeader.Pincode>
+                <cfset local.email = excelHeader.Email>
+                <cfset local.mobile = excelHeader.Mobile>
+                <cfset local.roles = excelHeader.Roles>
+                <cfset local.functionResult = createContacts(
+                                                        title = local.title,
+                                                        firstName = local.firstName,
+                                                        lastName = local.lastName,
+                                                        gender = local.gender,
+                                                        date = local.date,
+                                                        address = local.address,
+                                                        street = local.street,
+                                                        district = local.district,
+                                                        state = local.state,
+                                                        country = local.country,
+                                                        pincode = local.pincode,
+                                                        email = local.email,
+                                                        mobile = local.mobile,
+                                                        roles = local.roles
+
+                )>
+                <cfif NOT local.functionResult>
+                    <cfset local.functionResult = updateContacts(
+                                                        title = local.title,
+                                                        firstName = local.firstName,
+                                                        lastName = local.lastName,
+                                                        gender = local.gender,
+                                                        date = local.date,
+                                                        address = local.address,
+                                                        street = local.street,
+                                                        district = local.district,
+                                                        state = local.state,
+                                                        country = local.country,
+                                                        pincode = local.pincode,
+                                                        email = local.email,
+                                                        mobile = local.mobile,
+                                                        roles = local.roles
+                    ) >
+                </cfif>
+            </cfif>
+        </cfloop >
+
+        <cfreturn local.resultQuery>
     </cffunction>
 
 </cfcomponent>
