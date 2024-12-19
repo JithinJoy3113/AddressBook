@@ -51,7 +51,7 @@
                                                         roles= form.selectedTags
                                                         )>
                                    <cfif result>
-                                        <span class="fw-bold text-success removeSpan">Contact added Succesfully</span>
+                                      <span class="fw-bold text-success removeSpan">Contact added Succesfully</span>
                                     <cfelse>
                                         <span class="fw-bold text-danger removeSpan">Contact already exist</span>
                                     </cfif>
@@ -80,11 +80,6 @@
                                     <cfelse>
                                         <span class="fw-bold text-danger removeSpan">Contact already exist</span>
                                     </cfif>
-                                </cfif>
-                                <cfif structKeyExists(form, "createExcelSubmit")>
-                                    <cfset result = obj.createExcelContact(form.uploadProfile)>
-                            
-                                    <cfdump  var="#result#">
                                 </cfif>
                                 <div class="fileButtons ms-auto">
                                      <a href="##" class="text-decoration-none" name="pdfButton" onClick = "pdfDownload('pdfs')">
@@ -346,13 +341,21 @@
                                     </div>
                                     <div class="createUpload d-flex flex-column mt-3">
                                         <label for="name" class="nameLabel">Upload Excel *</label>
-                                        <input id="uploadProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
+                                        <input id="uploadExcelProfile" type="file" class="signUpImage mt-2" name="uploadProfile">
                                     </div>
+                                    <span class="errorMessage" id="excelError"></span>
                                 </div>
                                 <div class="crateDetailButtonDiv d-flex justify-content-center pt-5 pb-3">
-                                    <button type="submit" class="createDetailButton me-2" id="createExcelSubmit" onclick="" name="createExcelSubmit">SUBMIT</button>
+                                    <button type="button" class="createDetailButton me-2" id="createExcelSubmit" onclick="return excelSubmit()" name="createExcelSubmit">SUBMIT</button>
                                     <button type="button" class="editButton" id="crateDetailButton" onclick="viewContactClose()">CLOSE</button>
                                 </div>
+                            <!--- <cfif structKeyExists(form, "createExcelSubmit")>
+                                <cfset result = obj.createExcelContact(form.uploadProfile)>
+                                <cfdump  var="#result#">
+                                <span class="text-success fw-bold">
+                                    File uploaded
+                                </span>
+                            </cfif> --->
                             </div>
                         </div> 
 
