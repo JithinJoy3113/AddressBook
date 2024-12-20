@@ -538,4 +538,33 @@ function plainExcelTemplate(){
         }
     })
     }
+function excelSubmit(){
+    var file = $('#uploadExcelProfile').val();
+    var formData = new FormData();
+    formData.append("uploadProfile",$('#uploadExcelProfile')[0].files[0]);
+    if (file.endsWith('.xlsx')){
+        $.ajax({
+            url:'./Components/addressbook.cfc?method=createExcelContact',
+            type: "post",
+            data:formData,
+            encType:"multipart/form-data",
+            contentType:false,
+            processData:false,
+            success:function(response){
+                let tag=document.createElement('a');
+                let path="result.xlsx"
+                tag.href=`assets/spreadSheets/result.xlsx`;
+                tag.download=path;
+                tag.click();
+                tag.remove();
+            }
+        })
+        return true
+    }
+    else{
+        $('#excelError').text("File not supported");
+        $('#excelError').css({"color":"red"});
+        return false;
+    }
 
+}

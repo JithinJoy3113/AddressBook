@@ -11,7 +11,7 @@
         <cfset local.result = true>
         <cfset local.encrypPass = Hash(#arguments.password#, 'SHA-512')/> 
 
-        <cfquery name="selectQuery">
+        <cfquery name="local.selectQuery">
             SELECT 
                 emailID 
             FROM 
@@ -27,7 +27,7 @@
         </cfif>
 
         <cfif len(selectQuery.emailID) LT 1>
-            <cfquery name="userSignup">
+            <cfquery name="local.userSignup">
                INSERT INTO 
                     userLogin (
                         fullName,
@@ -53,7 +53,7 @@
     <cffunction  name = "loginUserData" returnType = "boolean">
         <cfargument  name="userMail" required = "true">
         <cfargument  name="password" default="">
-        <cfquery name="selectQuery">
+        <cfquery name="local.selectQuery">
             SELECT 
                 ID,
                 emailID,
@@ -70,8 +70,8 @@
                 password IS NULL
             </cfif>
         </cfquery>
-        <cfif queryRecordCount(selectQuery)>
-            <cfset session.userDetails = selectQuery>
+        <cfif queryRecordCount(local.selectQuery)>
+            <cfset session.userDetails = local.selectQuery>
             <cfreturn true>
         <cfelse>
             <cfreturn false>
@@ -94,7 +94,7 @@
 
     <cffunction  name = "ssoLogin" returnType = "boolean">
         
-        <cfargument  name ="loginDetails" required = "true">
+        <cfargument name ="loginDetails" required = "true">
         <cfset local.name = arguments.loginDetails['name']>
         <cfset local.email = arguments.loginDetails['other']['email']>
         <cfset local.userName = arguments.loginDetails['other']['given_name']>
@@ -105,7 +105,7 @@
         <cfif local.userData>
             <cfreturn true>
         <cfelse>
-            <cfquery name="ssoInsert">
+            <cfquery name="local.ssoInsert">
                 INSERT INTO 
                     userLogin (
                         fullName,
@@ -124,6 +124,31 @@
         </cfif>
         <cfreturn true>
     </cffunction>
+
+    <cffunction  name="fetchRoles" returnType="any">
+        <cfargument  name="roleList" required="true">
+
+        <cfquery name="local.roleSelect">
+            SELECT
+                roleID,
+                Roles
+            FROM
+                roleTable
+        </cfquery>
+        <cfset local.newRoles = "" />
+        <cfloop list="#arguments.roleList#" item="role">
+            <cfset local.matchedRoleID = "">
+
+            <cfloop query="local.roleSelect">
+                <cfif role EQ local.roleSelect.Roles>
+                    <cfset local.matchedRoleID = local.roleSelect.roleID>
+                    <cfbreak>
+                </cfif>
+            </cfloop>
+        <cfset local.newRoles = listAppend(local.newRoles, local.matchedRoleID)> 
+        </cfloop>
+        <cfreturn local.newRoles>
+    </cffunction>
     
     <cffunction  name="fetchContacts" returnType="query" returnFormat = "JSON">
   
@@ -132,7 +157,7 @@
         <cfif arguments.ID NEQ session.userDetails.ID>
             <cfset local.columnName = "ID">
         </cfif>
-        <cfquery name=contactSelect>
+        <cfquery name="local.contactSelect">
               SELECT 
                 <cfif arguments.ID EQ "excelSheet">
                     TOP 0
@@ -168,7 +193,7 @@
                 c.ID,c.Title,c.FirstName,c.LastName,c.Gender,c.DOB,c.Address,c.Street,
                 c.District,c.STATE,c.Country,c.Pincode,c.Email,c.Mobile,c.Profile;
         </cfquery>
-        <cfreturn contactSelect>
+        <cfreturn local.contactSelect>
     </cffunction>
 
     <cffunction  name="createContact" returnType="any">
@@ -177,7 +202,7 @@
         <cfargument  name="lastName" required="true">
         <cfargument  name="gender" required="true">
         <cfargument  name="date" required="true">
-        <cfargument  name="profile">
+        <cfargument  name="profile" default="">
         <cfargument  name="address" required="true">
         <cfargument  name="street" required="true">
         <cfargument  name="district" required="true">
@@ -190,20 +215,19 @@
 
         <cfset local.fileName = "defaultProfile.jpg">
 
-        <cfquery name="selectContacts">
+        <cfquery name="local.selectContacts">
             SELECT 
                 Email,
-                Mobile,
                 createdBy,
                 activeStatus
             FROM 
                 contactsTable
             WHERE 
                 Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > AND
-                Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND
-                createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
+                createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >AND
+                activeStatus =< cfqueryparam value = 1 cfsqltype = "cf_sql_integer" >
         </cfquery>
-        <cfif selectContacts.len() AND selectContacts.activeStatus EQ 1>
+        <cfif queryRecordCount(local.selectContacts) AND local.selectContacts.activeStatus EQ 1>
             <cfreturn false>
         <cfelse>
             <cfif trim(len(arguments.profile))>
@@ -211,7 +235,7 @@
                 <cffile  action="upload" destination="#local.uploadPath#" nameConflict="MakeUnique"> 
                 <cfset local.fileName = cffile.clientFile>
             </cfif>
-            <cfquery name="insertQuery" result="insertRow">
+            <cfquery name="local.insertQuery" result="insertRow">
                 INSERT INTO contactsTable (
                     Title,
                     FirstName,
@@ -236,7 +260,7 @@
                     < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
                     < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
                     < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
-                    < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
+                    < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_date" >,
                     < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
                     < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
                     < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
@@ -251,8 +275,9 @@
                     < cfqueryparam value = 1 cfsqltype = "cf_sql_integer" >
                     )
             </cfquery>
+            <cfset local.roles = fetchRoles(arguments.roles)>
             <cfset local.generatedKey = insertRow.generatedKey>
-            <cfloop list="#arguments.roles#" item="role">
+            <cfloop list="#local.roles#" item="role">
                 <cfquery name="insertRole">
                     INSERT INTO 
                         contactRoles(
@@ -277,7 +302,7 @@
         <cfargument  name = "lastName" required = "true">
         <cfargument  name = "gender" required = "true">
         <cfargument  name = "date" required = "true">
-        <cfargument  name = "profile"> 
+        <cfargument  name = "profile" default=""> 
         <cfargument  name = "address" required = "true">
         <cfargument  name = "street" required = "true">
         <cfargument  name = "district" required = "true">
@@ -291,26 +316,25 @@
         <cfset local.fetchContacts = fetchContacts(arguments.editID)>
         <cfset local.uploadPath = expandPath('./assets/uploadImages')>
 
-        <cfquery name="selectContacts">
+        <cfquery name="local.selectContacts">
             SELECT *
             FROM 
                 contactsTable
             WHERE 
                 Email = < cfqueryparam value = #arguments.email# cfsqltype = "cf_sql_varchar" > AND
-                Mobile = < cfqueryparam value = #arguments.mobile# cfsqltype = "cf_sql_varchar" > AND
                 createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_varchar" >
         </cfquery>
-        <cfif queryRecordCount(selectContacts) GT 1>
+        <cfif queryRecordCount(local.selectContacts) GT 1>
             <cfreturn false>
         <cfelse>
             <cfif trim(len(arguments.profile))>
                 <cffile  action = "upload" destination = "#local.uploadPath#" nameConflict = "MakeUnique"> 
                 <cfset local.filename = cffile.clientFile>
             <cfelse>
-                <cfset local.fileName = selectContacts.Profile>
+                <cfset local.fileName = local.selectContacts.Profile>
             </cfif>
 
-            <cfquery name = "updateQuery">
+            <cfquery name = "local.updateQuery">
                 UPDATE 
                     contactsTable
                 SET 
@@ -318,7 +342,7 @@
                     FirstName = < cfqueryparam value = '#arguments.firstName#' cfsqltype = "cf_sql_varchar" >,
                     LastName = < cfqueryparam value = '#arguments.lastName#' cfsqltype = "cf_sql_varchar" >,
                     Gender = < cfqueryparam value = '#arguments.gender#' cfsqltype = "cf_sql_varchar" >,
-                    DOB = < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_varchar" >,
+                    DOB = < cfqueryparam value = '#arguments.date#' cfsqltype = "cf_sql_date" >,
                     Address = < cfqueryparam value = '#arguments.address#' cfsqltype = "cf_sql_varchar" >,
                     Street = < cfqueryparam value = '#arguments.street#' cfsqltype = "cf_sql_varchar" >,
                     District = < cfqueryparam value = '#arguments.district#' cfsqltype = "cf_sql_varchar" >,
@@ -334,15 +358,16 @@
                     ID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
             </cfquery>
 
-            <cfquery name="deleteRoles">
+            <cfquery name="local.deleteRoles">
                 DELETE FROM 
                     contactRoles
                 WHERE 
                     contactID = < cfqueryparam value = '#arguments.editId#' cfsqltype = "cf_sql_varchar" >
             </cfquery>
 
-            <cfloop list="#arguments.roles#" item="role">
-                <cfquery name="insertRole">
+            <cfset local.roles = fetchRoles(arguments.roles)>
+            <cfloop list="#local.roles#" item="role">
+                <cfquery name="local.insertRole">
                     INSERT INTO 
                         contactRoles(
                             contactID,
@@ -367,7 +392,7 @@
 
     <cffunction  name = "deleteRow" access = "remote">
         <cfargument  name = "id" required = "true">
-        <cfquery name = "deleteTableRow">
+        <cfquery name = "local.deleteTableRow">
             UPDATE 
                 contactsTable
             SET 
@@ -455,74 +480,74 @@
         <cfset local.plainTemplate=QueryDeleteColumn(local.plainTemplate,"Profile")>
         <cfset local.plainTemplate=QueryDeleteColumn(local.plainTemplate,"ID")>
         <cfspreadsheet 
-                action="write" 
-                filename="../assets/spreadSheets/plainTemplate.xlsx" 
-                overwrite="true" 
-                query="local.plainTemplate" 
-                sheetname="contacts"> 
+            action="write" 
+            filename="../assets/spreadSheets/plainTemplate.xlsx" 
+            overwrite="true" 
+            query="local.plainTemplate" 
+            sheetname="contacts"> 
         <cfreturn true>
     </cffunction>
 
-    <cffunction  name="createExcelContact" returnType="any">
+    <cffunction  name="createExcelContact" returnType="any" access="remote">
         <cfargument  name="uploadProfile">
-        <cfspreadsheet  action="read" src="#arguments.uploadProfile#" query="excelHeader" headerRow="1" excludeHeaderRow="true">
+        <cfspreadsheet  action="read" src="#arguments.uploadProfile#" query="local.excelHeader" headerRow="1" excludeHeaderRow="true">
         <cfset local.count = 0>
-        <cfset local.excelData = structNew()>
-        <cfset local.resultQuery = Duplicate(excelHeader)>
+        <cfset local.resultQuery = Duplicate(local.excelHeader)>
         <cfset QueryAddColumn(local.resultQuery, "Result", "varchar",[])>
-        <cfset local.missingDatas = 0>
-        
+        <cfloop query="local.excelHeader">
+            <cfset local.missingDatas = false>
+            <cfset local.count += 1>
+            <cfset local.result = arrayNew(1)>
+             <cfloop list="#local.excelHeader.columnList#" item="column">
+                <cfset local.value = local.excelHeader[column]>
+                <cfif len(local.value) LT 1 OR column EQ "Result" >
+                    <cfset arrayAppend(local.result, "#column# must not be Empty")>
 
-       <cfloop query="excelHeader">
-       <cfset local.count += 1>
-        <cfset local.missing = "">
-             <cfloop list="#excelHeader.columnList#" item="column">
-                <!--- <cfset local.excelData["#column#"] = excelHeader[column][excelHeader.currentRow]> --->
-                <cfset local.value = excelHeader[column][excelHeader.currentRow]>
-                <cfset local.columnName = excelHeader[column]>
-                <cfif len(local.value) GT 0 OR local.columnName EQ "Result"> 
-                    <cfcontinue>
+                <cfelseif column EQ "Title" AND (local.value NEQ "Mr" AND local.value NEQ "Miss")>
+                    <cfset arrayAppend(local.result, "#column# must be valid data(Mr/Miss)")>
+
+                <cfelseif column EQ "Email" AND NOT(isValid("email", "#local.value#"))> 
+                    <cfset arrayAppend(local.result, "#column# must be valid Format")>
+
+                <cfelseif column EQ "Mobile"  AND NOT(REFind("^\d{10}$", "#local.value#"))>
+                    <cfset arrayAppend(local.result, "#column# must be valid Format(10 digits)")>
+
+                <cfelseif column EQ "Pincode" AND NOT(REFind("^\d{6}$", "#local.value#"))>
+                    <cfset arrayAppend(local.result, "#column# must be valid Format(6 digits)")>
+
+                <cfelseif column EQ "Gender" AND (local.value NEQ "Male" AND local.value NEQ "Female")>
+                    <cfset arrayAppend(local.result, "#column# must be valid data(Male/Female)")>
+
+                <cfelseif column EQ "DOB">
+                    <cfset local.dateDiff = dateDiff("d", dateFormat(now()), local.value)>
+                    <cfif NOT IsDate(local.value)>
+                        <cfset arrayAppend(local.result, "#column# must be valid date(dd-mm-yyyy)")>
+                    <cfelseif local.dateDiff GT 0>
+                        <cfset arrayAppend(local.result, "Cannot add the future dates")>
+                    </cfif>
                 <cfelse>
-                    <cfset local.missing = local.missing & "," & column>
-                    <cfset local.missingDatas += 1>
+                    <cfcontinue>
                 </cfif> 
             </cfloop>
-            <cfif local.missingDatas GT 0>
-                <cfset local.resultQuery.Result[local.count] = local.missing & "Missing">
-            <cfelse>
-                <cfset local.title = excelHeader.Title>
-                <cfset local.firstName = excelHeader.FirstName>
-                <cfset local.lastName = excelHeader.LastName>
-                <cfset local.gender = excelHeader.Gender>
-                <cfset local.date = excelHeader.DOB>
-                <cfset local.address = excelHeader.Address>
-                <cfset local.street = excelHeader.Street>
-                <cfset local.district = excelHeader.District>
-                <cfset local.state = excelHeader.State>
-                <cfset local.country = excelHeader.Country>
-                <cfset local.pincode = excelHeader.Pincode>
-                <cfset local.email = excelHeader.Email>
-                <cfset local.mobile = excelHeader.Mobile>
-                <cfset local.roles = excelHeader.Roles>
-                <cfset local.functionResult = createContacts(
-                                                        title = local.title,
-                                                        firstName = local.firstName,
-                                                        lastName = local.lastName,
-                                                        gender = local.gender,
-                                                        date = local.date,
-                                                        address = local.address,
-                                                        street = local.street,
-                                                        district = local.district,
-                                                        state = local.state,
-                                                        country = local.country,
-                                                        pincode = local.pincode,
-                                                        email = local.email,
-                                                        mobile = local.mobile,
-                                                        roles = local.roles
 
-                )>
-                <cfif NOT local.functionResult>
-                    <cfset local.functionResult = updateContacts(
+            <cfif local.result.len()>
+                <cfset local.resultQuery.Result[local.count] = local.result >
+            <cfelse>
+                <cfset local.title = local.excelHeader.Title>
+                <cfset local.firstName = local.excelHeader.FirstName>
+                <cfset local.lastName = local.excelHeader.LastName>
+                <cfset local.gender = local.excelHeader.Gender>
+                <cfset local.date = local.excelHeader.DOB>
+                <cfset local.address = local.excelHeader.Address>
+                <cfset local.street = local.excelHeader.Street>
+                <cfset local.district = local.excelHeader.District>
+                <cfset local.state = local.excelHeader.State>
+                <cfset local.country = local.excelHeader.Country>
+                <cfset local.pincode = local.excelHeader.Pincode>
+                <cfset local.email = local.excelHeader.Email>
+                <cfset local.mobile = local.excelHeader.Mobile>
+                <cfset local.roles = local.excelHeader.Roles>
+                <cfset local.functionResult = createContact(
                                                         title = local.title,
                                                         firstName = local.firstName,
                                                         lastName = local.lastName,
@@ -537,12 +562,63 @@
                                                         email = local.email,
                                                         mobile = local.mobile,
                                                         roles = local.roles
-                    ) >
+                )>
+                <cfif local.functionResult>
+                    <cfset local.resultQuery.Result[local.count] = "Contact Added">
+                <cfelse>
+                    <cfquery name="local.idSelect">
+                        SELECT 
+                            Email,
+                            ID
+                        FROM
+                            contactsTable
+                        WHERE
+                            Email=< cfqueryparam value = '#local.email#' cfsqltype = "cf_sql_varchar" >AND
+                            createdBy = < cfqueryparam value = #session.userDetails.ID# cfsqltype = "cf_sql_bigint" >
+                    </cfquery>
+                    <cfset local.UpdateFunctionResult = updateContact(
+                                                        editId=idSelect.ID,
+                                                        title = local.title,
+                                                        firstName = local.firstName,
+                                                        lastName = local.lastName,
+                                                        gender = local.gender,
+                                                        date = local.date,
+                                                        address = local.address,
+                                                        street = local.street,
+                                                        district = local.district,
+                                                        state = local.state,
+                                                        country = local.country,
+                                                        pincode = local.pincode,
+                                                        email = local.email,
+                                                        mobile = local.mobile,
+                                                        roles = local.roles
+                    )>
+                    <cfset local.resultQuery.Result[local.count] = "Contact Updated">
                 </cfif>
             </cfif>
         </cfloop >
+        <cfset QuerySort(local.resultQuery, sortExcelResult)>
+        <cfspreadsheet 
+            action="write" 
+            filename="../assets/spreadSheets/result.xlsx" 
+            overwrite="true" 
+            query="local.resultQuery" 
+            sheetname="contacts"> 
+        <cfreturn>
+    </cffunction>
 
-        <cfreturn local.resultQuery>
+    <cffunction  name="sortExcelResult" returnType = "numeric">
+        <cfargument  name="row1">
+        <cfargument  name="row2">
+
+        <cfset local.resultOrder = {"Contact Updated": 1, "Contact Added": 2}>
+        <cfif isValid("string",arguments.row1.Result) And isValid("string",arguments.row2.Result) >
+            <cfreturn compare(local.resultOrder[arguments.row1.Result], local.resultOrder[arguments.row2.Result])>
+        <cfelseif isValid("string",arguments.row1.Result)>
+            <cfreturn 1>
+        <cfelse>
+            <cfreturn -1>
+        </cfif>
     </cffunction>
 
 </cfcomponent>
