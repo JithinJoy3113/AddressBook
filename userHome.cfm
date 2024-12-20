@@ -179,10 +179,10 @@
                                         <div class="multiselectContainer d-flex flex-column">
                                             <label for="name" class="nameLabel" id="roleLabel">Role *</label>
                                             <div class="optionsContainer mt-3" id="optionsContainer">
-                                                <div class="option" data-value="1">Role 1</div>
-                                                <div class="option" data-value="2">Role 2</div>
-                                                <div class="option" data-value="3">Role 3</div>
-                                                <div class="option" data-value="4">Role 4</div>
+                                                <div class="option" data-value="Role1">Role 1</div>
+                                                <div class="option" data-value="Role2">Role 2</div>
+                                                <div class="option" data-value="Role3">Role 3</div>
+                                                <div class="option" data-value="Role4">Role 4</div>
                                             </div>
                                             <div class="multiselectInput placeholder inputBorder mt-3 pb-1" id="multiselectInput">Select Roles</div>
                                             <div class="selectedTags" id="selectedTags" data-value=""></div>
@@ -347,15 +347,8 @@
                                 </div>
                                 <div class="crateDetailButtonDiv d-flex justify-content-center pt-5 pb-3">
                                     <button type="button" class="createDetailButton me-2" id="createExcelSubmit" onclick="return excelSubmit()" name="createExcelSubmit">SUBMIT</button>
-                                    <button type="button" class="editButton" id="crateDetailButton" onclick="viewContactClose()">CLOSE</button>
+                                    <button type="submit" class="editButton" id="crateDetailButton" onclick="viewContactClose()">CLOSE</button>
                                 </div>
-                            <!--- <cfif structKeyExists(form, "createExcelSubmit")>
-                                <cfset result = obj.createExcelContact(form.uploadProfile)>
-                                <cfdump  var="#result#">
-                                <span class="text-success fw-bold">
-                                    File uploaded
-                                </span>
-                            </cfif> --->
                             </div>
                         </div> 
 
