@@ -1,3 +1,49 @@
+var selectedValues = [];
+document.addEventListener('DOMContentLoaded', function () {
+    const multiselectInput = document.getElementById('multiselectInput');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const selectedTags = document.getElementById('selectedTags');
+
+    // Toggle options dropdown
+    multiselectInput.addEventListener('click', function () {
+        optionsContainer.style.display = optionsContainer.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Select an option
+    optionsContainer.addEventListener('click', function (event) {
+        if (event.target.classList.contains('option')) {
+            const value = event.target.getAttribute('data-value');
+            const text = event.target.textContent;
+
+            if (!selectedValues.includes(value)) {
+                selectedValues.push(value);
+                const tag = document.createElement('span');
+                tag.classList.add('selectedTag');
+                tag.textContent = text;
+                tag.setAttribute('data-value', value);
+                selectedTags.appendChild(tag);
+                multiselectInput.classList.remove('placeholder');
+                multiselectInput.textContent = '';
+            }
+        }
+    });
+
+    selectedTags.addEventListener('click', function (event) {
+        if (event.target.classList.contains('selectedTag')) {
+            const value = event.target.getAttribute('data-value');
+            selectedValues=selectedValues.filter(item => item !== value);
+            event.target.remove();
+        }
+    });
+
+    document.addEventListener('click', function (event) {       //close option
+        if (!event.target.closest('.multiselectContainer')) {
+            optionsContainer.style.display = 'none';
+        }
+    });
+});
+
+
 $(document).on("click", function () {
     $(".removeSpan").hide();
 });
@@ -20,6 +66,7 @@ function viewContact(ID){
                 $("#contactName").text(data.FIRSTNAME+ data.LASTNAME);
                 $("#contactGender").text(data.GENDER);
                 $("#contactDob").text(formatDate);
+                $("#contactRole").text(data.ROLES);
                 $("#contactAddress").text(`${data.ADDRESS}, ${data.STREET}, ${data.DISTRICT}, ${data.STATE}, ${data.COUNTRY}`);
                 $("#contactPincode").text(data.PINCODE);
                 $("#contactEmail").text(data.EMAIL);
@@ -37,16 +84,19 @@ function viewContact(ID){
 function viewContactClose(){
     $("#showContactDiv").css({"display":"none"});
     $('#bodyContents').removeClass('disabled');
+    $("#showExcelDiv").css({"display":"none"});
 }
 
 function createClose(){
+    selectedValues=[];
+    $('.selectedTags').text('')
     $('#bodyContents').removeClass('disabled');
     $("#createEditDiv").css({"display":"none"});
     $('#showContactInfoDiv').find('label').css({'color':"#387cb4"});
     $('#createErrorMessage').text('');
     $('#createErrorMessageTwo').text('');
-    
 }
+
 
 function createContact(){
     $('#showContactInfoDiv').find('input,select').val('');
@@ -75,7 +125,6 @@ function validate(){
     let email = $('#emailInput').val();
     let mobile = $('#mobile').val();
 
-
     if(title == ""){
         $('#titleLabel').css({"color":"red"});
         valid = false;
@@ -99,7 +148,16 @@ function validate(){
     else{
         $('#lastNameLabel').css({"color":"#387cb4"});
     }
-    
+
+    if(!selectedValues.length){
+        $('#roleLabel').css({"color":"red"});
+        valid = false;
+    }
+    else{
+        $('#roleLabel').css({"color":"#387cb4"});
+        $('#optionInsert').val(selectedValues);
+    }
+
     if(gender == ""){
         $('#genderLabel').css({"color":"red"});
         valid = false;
@@ -203,7 +261,6 @@ let editId;
 function editContact(ID){
     $('#uploadProfile').val('');
     editId = ID.value;
- 
         $.ajax({
             url:'./Components/addressbook.cfc?method=viewContact',
             type: "post",
@@ -211,7 +268,6 @@ function editContact(ID){
                 id:editId
             },
             success: function (response) {
-                console.log(response)
                 let data = JSON.parse(response);
                 $("#createEditDiv").css({"display":"flex"}); 
                 $("#editDetailButton").css({"display":"flex"});
@@ -229,6 +285,20 @@ function editContact(ID){
                     day  = '0'+day
                 }
                 formatDate = year+"-"+month+"-"+day;
+
+                if(data.ROLES.length){
+                    let roles=data.ROLES.split(",");
+                    for (var i=0; i < roles.length;i++){
+                        let string=roles[i].trim();
+                        const tag = document.createElement('span');
+                        tag.classList.add('selectedTag');
+                        tag.textContent = string;
+                        tag.setAttribute('data-value', string);
+                        selectedTags.appendChild(tag);
+                        selectedValues.push(string);
+                    }
+                }
+                $("#editingID").val(data.ID);
                 $("#titleSelect").val(data.TITLE);
                 $("#firstNameInput").val(data.FIRSTNAME);
                 $("#lastNameInput").val(data.LASTNAME);
@@ -285,6 +355,7 @@ function deleteAlert(confirm){
                 if(response){
                     $("#deleteConfirm").css({"display":"none"});
                     $('#bodyContents').removeClass('disabled');
+                    document.getElementById(deleteId).remove();
                 }
             }
          });
@@ -294,7 +365,6 @@ function deleteAlert(confirm){
         $("#deleteConfirm").css({"display":"none"});
         $('#bodyContents').removeClass('disabled');
     }
-    return valid;
 }
 
 function logoutValidate(){
@@ -306,7 +376,6 @@ function logoutAlert(value){
 
     let valid = true;
     if(value == 'yes'){
-        console.log('asfgdhfnjm')
         $.ajax({
             url:'./Components/addressbook.cfc?method=logout',
             type: "post",
@@ -424,9 +493,77 @@ function printContacts(){
     document.body.innerHTML = originalContents;
 }
 
-function getExcel(){
+function getExcelOrPdf(){
     $.ajax({
-        url:'./Components/addressbook.cfc?method=getExcel',
+        url:'./Components/addressbook.cfc?method=getExcelOrPdf',
         type: "post"
     })
+}
+
+function pdfDownload(key){
+    $.ajax({
+        url:'./Components/addressbook.cfc?method=getExcelOrPdf',
+        type: "post",
+        data:{
+            value:key
+        },
+        success:function(response){
+            let path=JSON.parse(response)
+            let tag=document.createElement('a');
+            tag.href=`assets/${key}/${path}`;
+            tag.download=path;
+            tag.click();
+            tag.remove();
+        }
+    })
+}
+
+function createContactExcel(){
+    $("#showExcelDiv").css({"display":"flex"});
+    $('#bodyContents').addClass('disabled');
+}
+
+function plainExcelTemplate(){
+    $.ajax({
+        url:'./Components/addressbook.cfc?method=plainExcelSheet',
+        type: "post",
+        success:function(response){
+            let tag=document.createElement('a');
+            let path="plainTemplate.xlsx"
+            tag.href=`assets/spreadSheets/plainTemplate.xlsx`;
+            tag.download=path;
+            tag.click();
+            tag.remove();
+        }
+    })
+    }
+function excelSubmit(){
+    var file = $('#uploadExcelProfile').val();
+    var formData = new FormData();
+    formData.append("uploadProfile",$('#uploadExcelProfile')[0].files[0]);
+    if (file.endsWith('.xlsx')){
+        $.ajax({
+            url:'./Components/addressbook.cfc?method=createExcelContact',
+            type: "post",
+            data:formData,
+            encType:"multipart/form-data",
+            contentType:false,
+            processData:false,
+            success:function(response){
+                let tag=document.createElement('a');
+                let path="result.xlsx"
+                tag.href=`assets/spreadSheets/result.xlsx`;
+                tag.download=path;
+                tag.click();
+                tag.remove();
+            }
+        })
+        return true
+    }
+    else{
+        $('#excelError').text("File not supported");
+        $('#excelError').css({"color":"red"});
+        return false;
+    }
+
 }
